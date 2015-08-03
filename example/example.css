@@ -1,8 +1,12 @@
-/* assets */
+/* Assets */
 .assetStats {
   float: left;
   margin-left: 3%;
   width: 30%;
-  font-size: 20px;
-  font-weight: bold;
+  font-size: 18px;
+}
+
+/* Table */
+.table-sha1 {
+  word-wrap: break-word;
 }

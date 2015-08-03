@@ -2,14 +2,18 @@
 
 var React = require('react');
 var xhr = require('xhr');
-var LineChart = require("react-chartjs").Line;
-var PieChart = require("react-chartjs").Pie;
 
 var Row = require('react-bootstrap/lib/Row');
 var Col = require('react-bootstrap/lib/Col');
 var Panel = require('react-bootstrap/lib/Panel');
-var Table = require('react-bootstrap/lib/Table');
 var PageHeader = require('react-bootstrap/lib/PageHeader');
+
+var LineChart = require("react-chartjs").Line;
+var PieChart = require("react-chartjs").Pie;
+
+var ReactBsTable = require("react-bootstrap-table");
+var Table = ReactBsTable.BootstrapTable;
+var TableHeaderColumn = ReactBsTable.TableHeaderColumn;
 
 function datePosts(data, callback) {
   var dateLine = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -51,46 +55,56 @@ var Assets = React.createClass({
         var posts = JSON.parse(body).posts;
         var tips = JSON.parse(body).tips;
 
-        var data = [];
+        var tipsData = [];
         for (var i = 0; i < posts.length; i++) {
           var post = posts[i];
           if (tips[post.sha1] != undefined && tips[post.sha1].length > 0) {
             tips[post.sha1].forEach(function (tip) {
-              data.push({
+              tipsData.push({
                 date: tip.datetime,
                 title: post.title
               });
             });
           }
           if (i === posts.length - 1) {
-            that.renderStatistics(data);
-            that.renderGraph(data);
+            that.renderStatistics(posts, tipsData);
+            that.renderGraph(tipsData);
             that.renderPosts(posts);
+            that.setState({ loadPosts: false });
           }
         }
       }
     });
   },
 
-  renderStatistics: function renderStatistics(data) {
-    var numPosts = data.length;
+  renderStatistics: function renderStatistics(posts, tipsData) {
+    var numPosts = posts.length;
     var numTips = 0;
     var maxTips = 0;
 
     var counter = 0;
-    var length = data.length - 1;
     var that = this;
-    data.forEach(function (data) {
+    tipsData.forEach(function (tips) {
       numTips += 1;
-      if (1 > maxTips) {
-        maxTips = 1;
-      }
-      if (counter === length) {
-        that.setState({
-          numPosts: numPosts,
-          numTips: numTips,
-          maxTips: maxTips,
-          avgTips: numTips / numPosts
+      if (counter === tipsData.length - 1) {
+        var i = 0;
+        posts.forEach(function (post) {
+          if (post.tips > maxTips) {
+            maxTips = post.tips;
+          }
+          if (i === posts.length - 1) {
+            var avgTips = 0;
+            if (numPosts > 0) {
+              avgTips = numTips / numPosts;
+            }
+            that.setState({
+              numPosts: numPosts,
+              numTips: numTips,
+              maxTips: maxTips,
+              avgTips: avgTips
+            });
+          }
+          i++;
         });
       }
       counter++;
@@ -126,50 +140,59 @@ var Assets = React.createClass({
     if (posts.length > 0) {
       for (var i = 0; i < posts.length; i++) {
         var post = posts[i];
-        render.push(React.createElement(
-          'tr',
-          { key: i },
-          React.createElement(
-            'td',
-            null,
+        // Be careful how datetime is displayed, table sorts on alphanumerical order.
+        var date = new Date(post.datetime).toLocaleString();
+        render.push({
+          title: post.title,
+          tips: post.tips,
+          date: date,
+          sha1: React.createElement(
+            'a',
+            { href: "/permalink?sha1=" + post.sha1 },
             React.createElement(
-              'a',
-              { href: "/permalink?sha1=" + post.sha1 },
-              post.title
+              'div',
+              { className: 'table-sha1' },
+              post.sha1
             )
           ),
-          React.createElement(
-            'td',
-            null,
-            post.tips
-          ),
-          React.createElement(
-            'td',
-            null,
-            post.datetime
-          ),
-          React.createElement(
-            'td',
-            null,
-            React.createElement(
-              'a',
-              { href: "/permalink?sha1=" + post.sha1 },
-              post.sha1,
-              ' '
-            )
-          ),
-          React.createElement(
-            'td',
-            null,
-            React.createElement(
-              'a',
-              { href: "https://bitstore-test.blockai.com/" + post.owner + "/sha1/" + post.sha1 },
-              'View Content'
-            )
+          bitstore: React.createElement(
+            'a',
+            { href: "https://bitstore-test.blockai.com/" + post.owner + "/sha1/" + post.sha1 },
+            'View Content'
           )
-        ));
+        });
         if (i === posts.length - 1) {
-          this.setState({ posts: render, loadPosts: false });
+          this.setState({
+            posts: React.createElement(
+              Table,
+              { data: render, striped: true, hover: true },
+              React.createElement(
+                TableHeaderColumn,
+                { dataField: 'title', dataSort: true },
+                'Title'
+              ),
+              React.createElement(
+                TableHeaderColumn,
+                { dataField: 'tips', isKey: true, dataSort: true },
+                'Tips'
+              ),
+              React.createElement(
+                TableHeaderColumn,
+                { dataField: 'date', dataSort: true },
+                'Date'
+              ),
+              React.createElement(
+                TableHeaderColumn,
+                { dataField: 'sha1' },
+                'SHA1'
+              ),
+              React.createElement(
+                TableHeaderColumn,
+                { dataField: 'bitstore' },
+                'Bitstore'
+              )
+            )
+          });
         }
       }
     }
@@ -280,48 +303,7 @@ var Assets = React.createClass({
             this.state.tipLine
           )
         ),
-        React.createElement(
-          Table,
-          { responsive: true },
-          React.createElement(
-            'thead',
-            null,
-            React.createElement(
-              'tr',
-              null,
-              React.createElement(
-                'th',
-                null,
-                'Title'
-              ),
-              React.createElement(
-                'th',
-                null,
-                'Tips'
-              ),
-              React.createElement(
-                'th',
-                null,
-                'Date'
-              ),
-              React.createElement(
-                'th',
-                null,
-                'SHA1'
-              ),
-              React.createElement(
-                'th',
-                null,
-                'Bitstore'
-              )
-            )
-          ),
-          React.createElement(
-            'tbody',
-            null,
-            this.state.posts
-          )
-        )
+        this.state.posts
       )
     );
   }

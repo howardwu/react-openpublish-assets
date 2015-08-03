@@ -1,13 +1,17 @@
 var React = require('react');
 var xhr = require('xhr');
-var LineChart = require("react-chartjs").Line;
-var PieChart = require("react-chartjs").Pie;
 
 var Row = require('react-bootstrap/lib/Row');
 var Col = require('react-bootstrap/lib/Col');
 var Panel = require('react-bootstrap/lib/Panel');
-var Table = require('react-bootstrap/lib/Table');
 var PageHeader = require('react-bootstrap/lib/PageHeader');
+
+var LineChart = require("react-chartjs").Line;
+var PieChart = require("react-chartjs").Pie;
+
+var ReactBsTable = require("react-bootstrap-table");
+var Table = ReactBsTable.BootstrapTable;
+var TableHeaderColumn = ReactBsTable.TableHeaderColumn;
 
 function datePosts(data, callback) {
   var dateLine = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -47,50 +51,60 @@ var Assets = React.createClass({
         var posts = JSON.parse(body).posts;
         var tips = JSON.parse(body).tips;
 
-        var data = [];
+        var tipsData = [];
         for (var i = 0; i < posts.length; i++) {
           var post = posts[i];
           if (tips[post.sha1] != undefined && tips[post.sha1].length > 0) {
             tips[post.sha1].forEach(function (tip) {
-              data.push({
+              tipsData.push({
                 date: tip.datetime,
                 title: post.title
               });
             });
           }
           if (i === posts.length - 1) {
-            that.renderStatistics(data);
-            that.renderGraph(data);
+            that.renderStatistics(posts, tipsData);
+            that.renderGraph(tipsData);
             that.renderPosts(posts);
+            that.setState({ loadPosts: false });
           }
         }
       }
     });
   },
 
-  renderStatistics: function (data) {
-    var numPosts = data.length;
+  renderStatistics: function (posts, tipsData) {
+    var numPosts = posts.length;
     var numTips = 0;
     var maxTips = 0;
 
     var counter = 0;
-    var length = data.length - 1;
     var that = this;
-    data.forEach(function (data) {
+    tipsData.forEach(function (tips) {
       numTips += 1;
-      if (1 > maxTips) {
-        maxTips = 1;
-      }
-      if (counter === length) {
-        that.setState({
-          numPosts: numPosts,
-          numTips: numTips,
-          maxTips: maxTips,
-          avgTips: numTips / numPosts
+      if (counter === tipsData.length - 1) {
+        var i = 0;
+        posts.forEach(function (post) {
+          if (post.tips > maxTips) {
+            maxTips = post.tips;
+          }
+          if (i === posts.length - 1) {
+            var avgTips = 0;
+            if (numPosts > 0) {
+              avgTips = numTips / numPosts;
+            }
+            that.setState({
+              numPosts: numPosts,
+              numTips: numTips,
+              maxTips: maxTips,
+              avgTips: avgTips
+            });
+          }
+          i++;
         });
       }
       counter++;
-    })
+    });
   },
 
   renderGraph: function (data) {
@@ -124,17 +138,25 @@ var Assets = React.createClass({
     if (posts.length > 0) {
       for (var i = 0; i < posts.length; i++) {
         var post = posts[i];
-        render.push(
-          <tr key={i}>
-            <td><a href={"/permalink?sha1=" + post.sha1}>{post.title}</a></td>
-            <td>{post.tips}</td>
-            <td>{post.datetime}</td>
-            <td><a href={"/permalink?sha1=" + post.sha1}>{post.sha1} </a></td>
-            <td><a href={"https://bitstore-test.blockai.com/" + post.owner + "/sha1/" + post.sha1}>View Content</a></td>
-          </tr>
-        );
+        // Be careful how datetime is displayed, table sorts on alphanumerical order.
+        var date = new Date(post.datetime).toLocaleString();
+        render.push({
+          title: post.title,
+          tips: post.tips,
+          date: date,
+          sha1: <a href={"/permalink?sha1=" + post.sha1}><div className="table-sha1">{post.sha1}</div></a>,
+          bitstore: <a href={"https://bitstore-test.blockai.com/" + post.owner + "/sha1/" + post.sha1}>View Content</a>
+        });
         if (i === posts.length - 1) {
-          this.setState({posts: render, loadPosts: false});
+          this.setState({
+            posts: <Table data={render} striped={true} hover={true}>
+                     <TableHeaderColumn dataField="title" dataSort={true}>Title</TableHeaderColumn>
+                     <TableHeaderColumn dataField="tips" isKey={true} dataSort={true}>Tips</TableHeaderColumn>
+                     <TableHeaderColumn dataField="date" dataSort={true}>Date</TableHeaderColumn>
+                     <TableHeaderColumn dataField="sha1">SHA1</TableHeaderColumn>
+                     <TableHeaderColumn dataField="bitstore">Bitstore</TableHeaderColumn>
+                   </Table>
+          });
         }
       }
     }
@@ -166,21 +188,7 @@ var Assets = React.createClass({
           <Panel>
             <center>{this.state.tipLine}</center>
           </Panel>
-          <Table responsive>
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Tips</th>
-                <th>Date</th>
-                <th>SHA1</th>
-                <th>Bitstore</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {this.state.posts}
-            </tbody>
-          </Table>
+          {this.state.posts}
         </Panel>
       </div>
     );
