@@ -88,6 +88,26 @@ function sortByDate(posts, sort, callback) {
   }
 }
 
+function sortBySHA1(posts, sort, callback) {
+  if (posts !== undefined && posts.length > 0) {
+    if (sort === "up") {
+      callback(posts.sort(function (a, b) {
+        var sha1A = a.sha1;
+        var sha1B = b.sha1;
+        return sha1A < sha1B ? -1 : sha1A > sha1B ? 1 : 0;
+      }));
+    } else if (sort === "down") {
+      callback(posts.sort(function (a, b) {
+        var sha1A = a.sha1;
+        var sha1B = b.sha1;
+        return sha1A < sha1B ? 1 : sha1A > sha1B ? -1 : 0;
+      }));
+    }
+  } else {
+    callback([]);
+  }
+}
+
 function buildTable(sortedPosts, callback) {
   var i = 0;
   var renderPosts = [];
@@ -297,6 +317,18 @@ var Assets = React.createClass({
           that.setState({ posts: renderPosts });
         });
       });
+    } else if (sort === 'sha1-up') {
+      sortBySHA1(posts, 'up', function (sortedPosts) {
+        buildTable(sortedPosts, function (renderPosts) {
+          that.setState({ posts: renderPosts });
+        });
+      });
+    } else if (sort === 'sha1-down') {
+      sortBySHA1(posts, 'down', function (sortedPosts) {
+        buildTable(sortedPosts, function (renderPosts) {
+          that.setState({ posts: renderPosts });
+        });
+      });
     }
   },
 
@@ -462,7 +494,18 @@ var Assets = React.createClass({
               React.createElement(
                 'th',
                 null,
-                'SHA1'
+                'SHA1 ',
+                React.createElement(
+                  Button,
+                  { onClick: this.sortPosts.bind(null, 'sha1-up'), bsSize: 'xsmall' },
+                  React.createElement(Glyphicon, { glyph: 'triangle-top' })
+                ),
+                ' ',
+                React.createElement(
+                  Button,
+                  { onClick: this.sortPosts.bind(null, 'sha1-down'), bsSize: 'xsmall' },
+                  React.createElement(Glyphicon, { glyph: 'triangle-bottom' })
+                )
               ),
               React.createElement(
                 'th',

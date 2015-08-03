@@ -91,6 +91,28 @@ function sortByDate(posts, sort, callback) {
   }
 }
 
+function sortBySHA1(posts, sort, callback) {
+  if (posts !== undefined && posts.length > 0){
+    if (sort === "up") {
+      callback(posts.sort(function (a, b) {
+        var sha1A = a.sha1;
+        var sha1B = b.sha1;
+        return (sha1A < sha1B) ? -1 : (sha1A > sha1B) ? 1 : 0;
+      }));
+    }
+    else if (sort === "down") {
+      callback(posts.sort(function (a, b) {
+        var sha1A = a.sha1;
+        var sha1B = b.sha1;
+        return (sha1A < sha1B) ? 1 : (sha1A > sha1B) ? -1 : 0;
+      }));
+    }
+  }
+  else {
+    callback([]);
+  }
+}
+
 function buildTable(sortedPosts, callback) {
   var i = 0;
   var renderPosts = [];
@@ -273,6 +295,20 @@ var Assets = React.createClass({
         });
       });
     }
+    else if (sort === 'sha1-up') {
+      sortBySHA1(posts, 'up', function (sortedPosts) {
+        buildTable(sortedPosts, function (renderPosts) {
+          that.setState({ posts: renderPosts });
+        });
+      });
+    }
+    else if (sort === 'sha1-down') {
+      sortBySHA1(posts, 'down', function (sortedPosts) {
+        buildTable(sortedPosts, function (renderPosts) {
+          that.setState({ posts: renderPosts });
+        });
+      });
+    }
   },
 
   render: function () {
@@ -304,7 +340,7 @@ var Assets = React.createClass({
                 <th>Title <Button onClick={this.sortPosts.bind(null, 'title-up')} bsSize='xsmall'><Glyphicon glyph="triangle-top" /></Button> <Button onClick={this.sortPosts.bind(null, 'title-down')} bsSize='xsmall'><Glyphicon glyph="triangle-bottom" /></Button></th>
                 <th>Tips <Button onClick={this.sortPosts.bind(null, 'tips-up')} bsSize='xsmall'><Glyphicon glyph="triangle-top" /></Button> <Button onClick={this.sortPosts.bind(null, 'tips-down')} bsSize='xsmall'><Glyphicon glyph="triangle-bottom" /></Button></th>
                 <th>Date <Button onClick={this.sortPosts.bind(null, 'date-up')} bsSize='xsmall'><Glyphicon glyph="triangle-top" /></Button> <Button onClick={this.sortPosts.bind(null, 'date-down')} bsSize='xsmall'><Glyphicon glyph="triangle-bottom" /></Button></th>
-                <th>SHA1</th>
+                <th>SHA1 <Button onClick={this.sortPosts.bind(null, 'sha1-up')} bsSize='xsmall'><Glyphicon glyph="triangle-top" /></Button> <Button onClick={this.sortPosts.bind(null, 'sha1-down')} bsSize='xsmall'><Glyphicon glyph="triangle-bottom" /></Button></th>
                 <th>Bitstore</th>
               </tr>
             </thead>
