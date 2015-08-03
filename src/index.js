@@ -4,14 +4,13 @@ var xhr = require('xhr');
 var Row = require('react-bootstrap/lib/Row');
 var Col = require('react-bootstrap/lib/Col');
 var Panel = require('react-bootstrap/lib/Panel');
+var Table = require('react-bootstrap/lib/Table');
+var Button = require('react-bootstrap/lib/Button');
+var Glyphicon = require('react-bootstrap/lib/Glyphicon');
 var PageHeader = require('react-bootstrap/lib/PageHeader');
 
 var LineChart = require("react-chartjs").Line;
 var PieChart = require("react-chartjs").Pie;
-
-var ReactBsTable = require("react-bootstrap-table");
-var Table = ReactBsTable.BootstrapTable;
-var TableHeaderColumn = ReactBsTable.TableHeaderColumn;
 
 function datePosts(data, callback) {
   var dateLine = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -28,6 +27,90 @@ function datePosts(data, callback) {
   });
 }
 
+function sortByTitle(posts, sort, callback) {
+  if (posts !== undefined && posts.length > 0) {
+    if (sort === "up") {
+      callback(posts.sort(function (a, b) {
+        var titleA = a.title.toUpperCase();
+        var titleB = b.title.toUpperCase();
+        return (titleA < titleB) ? -1 : (titleA > titleB) ? 1 : 0;
+      }));
+    }
+    else if (sort === "down") {
+      callback(posts.sort(function (a, b) {
+        var titleA = a.title.toUpperCase();
+        var titleB = b.title.toUpperCase();
+        return (titleA < titleB) ? 1 : (titleA > titleB) ? -1 : 0;
+      }));
+    }
+  }
+  callback([]);
+}
+
+function sortByTips(posts, sort, callback) {
+  if (posts !== undefined && posts.length > 0) {
+    if (sort === "up") {
+      callback(posts.sort(function (a, b) {
+        var tipsA = a.tips;
+        var tipsB = b.tips;
+        return (tipsA < tipsB) ? 1 : (tipsA > tipsB) ? -1 : 0;
+      }));
+    }
+    else if (sort === "down") {
+      callback(posts.sort(function (a, b) {
+        var tipsA = a.tips;
+        var tipsB = b.tips;
+        return (tipsA < tipsB) ? -1 : (tipsA > tipsB) ? 1 : 0;
+      }));
+    }
+  }
+  else {
+    callback([]);
+  }
+}
+
+function sortByDate(posts, sort, callback) {
+  if (posts !== undefined && posts.length > 0){
+    if (sort === "up") {
+      callback(posts.sort(function (a, b) {
+        var dateA = new Date(a.datetime).toLocaleString();
+        var dateB = new Date(b.datetime).toLocaleString();
+        return (dateA < dateB) ? 1 : (dateA > dateB) ? -1 : 0;
+      }));
+    }
+    else if (sort === "down") {
+      callback(posts.sort(function (a, b) {
+        var dateA = new Date(a.datetime).toLocaleString();
+        var dateB = new Date(b.datetime).toLocaleString();
+        return (dateA < dateB) ? -1 : (dateA > dateB) ? 1 : 0;
+      }));
+    }
+  }
+  else {
+    callback([]);
+  }
+}
+
+function buildTable(sortedPosts, callback) {
+  var i = 0;
+  var renderPosts = [];
+  sortedPosts.forEach(function (post) {
+    renderPosts.push(
+      <tr key={i}>
+        <td><a href={"/permalink?sha1=" + post.sha1}>{post.title}</a></td>
+        <td>{post.tips}</td>
+        <td>{new Date(post.datetime).toLocaleString()}</td>
+        <td><a href={"/permalink?sha1=" + post.sha1}>{post.sha1} </a></td>
+        <td><a href={"https://bitstore-test.blockai.com/" + post.owner + "/sha1/" + post.sha1}>View Content</a></td>
+      </tr>
+    );
+    if (i === sortedPosts.length - 1) {
+      callback(renderPosts);
+    }
+    i++;
+  });
+}
+
 var Assets = React.createClass({
   getInitialState: function() {
     return {
@@ -35,8 +118,8 @@ var Assets = React.createClass({
       loadPosts: true
     }
   },
-
-  getData: function (callback) {
+  
+  componentDidMount: function() {
     var address = this.props.address;
     var that = this;
     xhr({
@@ -63,17 +146,28 @@ var Assets = React.createClass({
             });
           }
           if (i === posts.length - 1) {
-            that.renderStatistics(posts, tipsData);
-            that.renderGraph(tipsData);
-            that.renderPosts(posts);
-            that.setState({ loadPosts: false });
+            that.renderStatistics(posts, tipsData, function (numPosts, numTips, maxTips, avgTips) {
+              that.renderGraph(tipsData, function (lineChart) {
+                that.renderPosts(posts, function (sortedPosts) {
+                  that.setState({ 
+                    numPosts: numPosts,
+                    numTips: numTips,
+                    maxTips: maxTips,
+                    avgTips: avgTips,
+                    tipLine: lineChart,
+                    posts: sortedPosts,
+                    rawPosts: posts
+                  });
+                });
+              });
+            });
           }
         }
       }
     });
   },
 
-  renderStatistics: function (posts, tipsData) {
+  renderStatistics: function (posts, tipsData, callback) {
     var numPosts = posts.length;
     var numTips = 0;
     var maxTips = 0;
@@ -93,12 +187,7 @@ var Assets = React.createClass({
             if (numPosts > 0) {
               avgTips = numTips / numPosts;
             }
-            that.setState({
-              numPosts: numPosts,
-              numTips: numTips,
-              maxTips: maxTips,
-              avgTips: avgTips
-            });
+            callback(numPosts, numTips, maxTips, avgTips);
           }
           i++;
         });
@@ -107,7 +196,7 @@ var Assets = React.createClass({
     });
   },
 
-  renderGraph: function (data) {
+  renderGraph: function (data, callback) {
     if (data.length > 0) {
       var that = this;
       datePosts(data, function (dataLine) {
@@ -126,46 +215,67 @@ var Assets = React.createClass({
             }
           ]
         };
-        that.setState({
-          tipLine: <LineChart data={lineData} options={{responsive: true}} height="100" />
+        callback(<LineChart data={lineData} options={{responsive: true}} height="100" />);
+      });
+    }
+  },
+
+  renderPosts: function (posts, callback) {
+    sortByTips(posts, 'up', function (sortedPosts) {
+      buildTable(sortedPosts, function (renderPosts) {
+        callback(renderPosts);
+      });
+    });
+  },
+
+  sortPosts: function (sort) {
+    var posts = this.state.rawPosts;
+    var that = this;
+    if (sort === 'title-up') {
+      sortByTitle(posts, 'up', function (sortedPosts) {
+        buildTable(sortedPosts, function (renderPosts) {
+          that.setState({ posts: renderPosts });
+        });
+      });
+    }
+    else if (sort === 'title-down') {
+      sortByTitle(posts, 'down', function (sortedPosts) {
+        buildTable(sortedPosts, function (renderPosts) {
+          that.setState({ posts: renderPosts });
+        });
+      });
+    }
+    else if (sort === 'tips-up') {
+      sortByTips(posts, 'up', function (sortedPosts) {
+        buildTable(sortedPosts, function (renderPosts) {
+          that.setState({ posts: renderPosts });
+        });
+      });
+    }
+    else if (sort === 'tips-down') {
+      sortByTips(posts, 'down', function (sortedPosts) {
+        buildTable(sortedPosts, function (renderPosts) {
+          that.setState({ posts: renderPosts });
+        });
+      });
+    }
+    else if (sort === 'date-up') {
+      sortByDate(posts, 'up', function (sortedPosts) {
+        buildTable(sortedPosts, function (renderPosts) {
+          that.setState({ posts: renderPosts });
+        });
+      });
+    }
+    else if (sort === 'date-down') {
+      sortByDate(posts, 'down', function (sortedPosts) {
+        buildTable(sortedPosts, function (renderPosts) {
+          that.setState({ posts: renderPosts });
         });
       });
     }
   },
 
-  renderPosts: function (posts) {
-    var render = [];
-    if (posts.length > 0) {
-      for (var i = 0; i < posts.length; i++) {
-        var post = posts[i];
-        // Be careful how datetime is displayed, table sorts on alphanumerical order.
-        var date = new Date(post.datetime).toLocaleString();
-        render.push({
-          title: post.title,
-          tips: post.tips,
-          date: date,
-          sha1: <a href={"/permalink?sha1=" + post.sha1}><div className="table-sha1">{post.sha1}</div></a>,
-          bitstore: <a href={"https://bitstore-test.blockai.com/" + post.owner + "/sha1/" + post.sha1}>View Content</a>
-        });
-        if (i === posts.length - 1) {
-          this.setState({
-            posts: <Table data={render} striped={true} hover={true}>
-                     <TableHeaderColumn dataField="title" dataSort={true}>Title</TableHeaderColumn>
-                     <TableHeaderColumn dataField="tips" isKey={true} dataSort={true}>Tips</TableHeaderColumn>
-                     <TableHeaderColumn dataField="date" dataSort={true}>Date</TableHeaderColumn>
-                     <TableHeaderColumn dataField="sha1">SHA1</TableHeaderColumn>
-                     <TableHeaderColumn dataField="bitstore">Bitstore</TableHeaderColumn>
-                   </Table>
-          });
-        }
-      }
-    }
-  },
-
   render: function () {
-    if (this.state.loadPosts) {
-      this.getData();
-    }
     return (
       <div className="container">
         <Panel>
@@ -188,7 +298,21 @@ var Assets = React.createClass({
           <Panel>
             <center>{this.state.tipLine}</center>
           </Panel>
-          {this.state.posts}
+          <Table striped hover responsive>
+            <thead>
+              <tr>
+                <th>Title <Button onClick={this.sortPosts.bind(null, 'title-up')} bsSize='xsmall'><Glyphicon glyph="triangle-top" /></Button> <Button onClick={this.sortPosts.bind(null, 'title-down')} bsSize='xsmall'><Glyphicon glyph="triangle-bottom" /></Button></th>
+                <th>Tips <Button onClick={this.sortPosts.bind(null, 'tips-up')} bsSize='xsmall'><Glyphicon glyph="triangle-top" /></Button> <Button onClick={this.sortPosts.bind(null, 'tips-down')} bsSize='xsmall'><Glyphicon glyph="triangle-bottom" /></Button></th>
+                <th>Date <Button onClick={this.sortPosts.bind(null, 'date-up')} bsSize='xsmall'><Glyphicon glyph="triangle-top" /></Button> <Button onClick={this.sortPosts.bind(null, 'date-down')} bsSize='xsmall'><Glyphicon glyph="triangle-bottom" /></Button></th>
+                <th>SHA1</th>
+                <th>Bitstore</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {this.state.posts}
+            </tbody>
+          </Table>
         </Panel>
       </div>
     );

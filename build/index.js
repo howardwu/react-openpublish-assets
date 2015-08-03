@@ -6,14 +6,13 @@ var xhr = require('xhr');
 var Row = require('react-bootstrap/lib/Row');
 var Col = require('react-bootstrap/lib/Col');
 var Panel = require('react-bootstrap/lib/Panel');
+var Table = require('react-bootstrap/lib/Table');
+var Button = require('react-bootstrap/lib/Button');
+var Glyphicon = require('react-bootstrap/lib/Glyphicon');
 var PageHeader = require('react-bootstrap/lib/PageHeader');
 
 var LineChart = require("react-chartjs").Line;
 var PieChart = require("react-chartjs").Pie;
-
-var ReactBsTable = require("react-bootstrap-table");
-var Table = ReactBsTable.BootstrapTable;
-var TableHeaderColumn = ReactBsTable.TableHeaderColumn;
 
 function datePosts(data, callback) {
   var dateLine = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -30,6 +29,118 @@ function datePosts(data, callback) {
   });
 }
 
+function sortByTitle(posts, sort, callback) {
+  if (posts !== undefined && posts.length > 0) {
+    if (sort === "up") {
+      callback(posts.sort(function (a, b) {
+        var titleA = a.title.toUpperCase();
+        var titleB = b.title.toUpperCase();
+        return titleA < titleB ? -1 : titleA > titleB ? 1 : 0;
+      }));
+    } else if (sort === "down") {
+      callback(posts.sort(function (a, b) {
+        var titleA = a.title.toUpperCase();
+        var titleB = b.title.toUpperCase();
+        return titleA < titleB ? 1 : titleA > titleB ? -1 : 0;
+      }));
+    }
+  }
+  callback([]);
+}
+
+function sortByTips(posts, sort, callback) {
+  if (posts !== undefined && posts.length > 0) {
+    if (sort === "up") {
+      callback(posts.sort(function (a, b) {
+        var tipsA = a.tips;
+        var tipsB = b.tips;
+        return tipsA < tipsB ? 1 : tipsA > tipsB ? -1 : 0;
+      }));
+    } else if (sort === "down") {
+      callback(posts.sort(function (a, b) {
+        var tipsA = a.tips;
+        var tipsB = b.tips;
+        return tipsA < tipsB ? -1 : tipsA > tipsB ? 1 : 0;
+      }));
+    }
+  } else {
+    callback([]);
+  }
+}
+
+function sortByDate(posts, sort, callback) {
+  if (posts !== undefined && posts.length > 0) {
+    if (sort === "up") {
+      callback(posts.sort(function (a, b) {
+        var dateA = new Date(a.datetime).toLocaleString();
+        var dateB = new Date(b.datetime).toLocaleString();
+        return dateA < dateB ? 1 : dateA > dateB ? -1 : 0;
+      }));
+    } else if (sort === "down") {
+      callback(posts.sort(function (a, b) {
+        var dateA = new Date(a.datetime).toLocaleString();
+        var dateB = new Date(b.datetime).toLocaleString();
+        return dateA < dateB ? -1 : dateA > dateB ? 1 : 0;
+      }));
+    }
+  } else {
+    callback([]);
+  }
+}
+
+function buildTable(sortedPosts, callback) {
+  var i = 0;
+  var renderPosts = [];
+  sortedPosts.forEach(function (post) {
+    renderPosts.push(React.createElement(
+      'tr',
+      { key: i },
+      React.createElement(
+        'td',
+        null,
+        React.createElement(
+          'a',
+          { href: "/permalink?sha1=" + post.sha1 },
+          post.title
+        )
+      ),
+      React.createElement(
+        'td',
+        null,
+        post.tips
+      ),
+      React.createElement(
+        'td',
+        null,
+        new Date(post.datetime).toLocaleString()
+      ),
+      React.createElement(
+        'td',
+        null,
+        React.createElement(
+          'a',
+          { href: "/permalink?sha1=" + post.sha1 },
+          post.sha1,
+          ' '
+        )
+      ),
+      React.createElement(
+        'td',
+        null,
+        React.createElement(
+          'a',
+          { href: "https://bitstore-test.blockai.com/" + post.owner + "/sha1/" + post.sha1 },
+          'View Content'
+        )
+      )
+    ));
+    if (i === sortedPosts.length - 1) {
+      callback(renderPosts);
+    }
+    i++;
+  });
+}
+
 var Assets = React.createClass({
   displayName: 'Assets',
 
@@ -40,7 +151,7 @@ var Assets = React.createClass({
     };
   },
 
-  getData: function getData(callback) {
+  componentDidMount: function componentDidMount() {
     var address = this.props.address;
     var that = this;
     xhr({
@@ -67,17 +178,28 @@ var Assets = React.createClass({
             });
           }
           if (i === posts.length - 1) {
-            that.renderStatistics(posts, tipsData);
-            that.renderGraph(tipsData);
-            that.renderPosts(posts);
-            that.setState({ loadPosts: false });
+            that.renderStatistics(posts, tipsData, function (numPosts, numTips, maxTips, avgTips) {
+              that.renderGraph(tipsData, function (lineChart) {
+                that.renderPosts(posts, function (sortedPosts) {
+                  that.setState({
+                    numPosts: numPosts,
+                    numTips: numTips,
+                    maxTips: maxTips,
+                    avgTips: avgTips,
+                    tipLine: lineChart,
+                    posts: sortedPosts,
+                    rawPosts: posts
+                  });
+                });
+              });
+            });
           }
         }
       }
     });
   },
 
-  renderStatistics: function renderStatistics(posts, tipsData) {
+  renderStatistics: function renderStatistics(posts, tipsData, callback) {
     var numPosts = posts.length;
     var numTips = 0;
     var maxTips = 0;
@@ -97,12 +219,7 @@ var Assets = React.createClass({
             if (numPosts > 0) {
               avgTips = numTips / numPosts;
             }
-            that.setState({
-              numPosts: numPosts,
-              numTips: numTips,
-              maxTips: maxTips,
-              avgTips: avgTips
-            });
+            callback(numPosts, numTips, maxTips, avgTips);
           }
           i++;
         });
@@ -111,7 +228,7 @@ var Assets = React.createClass({
     });
   },
 
-  renderGraph: function renderGraph(data) {
+  renderGraph: function renderGraph(data, callback) {
     if (data.length > 0) {
       var that = this;
       datePosts(data, function (dataLine) {
@@ -128,80 +245,62 @@ var Assets = React.createClass({
             data: dataLine
           }]
         };
-        that.setState({
-          tipLine: React.createElement(LineChart, { data: lineData, options: { responsive: true }, height: '100' })
+        callback(React.createElement(LineChart, { data: lineData, options: { responsive: true }, height: '100' }));
+      });
+    }
+  },
+
+  renderPosts: function renderPosts(posts, callback) {
+    sortByTips(posts, 'up', function (sortedPosts) {
+      buildTable(sortedPosts, function (renderPosts) {
+        callback(renderPosts);
+      });
+    });
+  },
+
+  sortPosts: function sortPosts(sort) {
+    var posts = this.state.rawPosts;
+    var that = this;
+    if (sort === 'title-up') {
+      sortByTitle(posts, 'up', function (sortedPosts) {
+        buildTable(sortedPosts, function (renderPosts) {
+          that.setState({ posts: renderPosts });
+        });
+      });
+    } else if (sort === 'title-down') {
+      sortByTitle(posts, 'down', function (sortedPosts) {
+        buildTable(sortedPosts, function (renderPosts) {
+          that.setState({ posts: renderPosts });
+        });
+      });
+    } else if (sort === 'tips-up') {
+      sortByTips(posts, 'up', function (sortedPosts) {
+        buildTable(sortedPosts, function (renderPosts) {
+          that.setState({ posts: renderPosts });
+        });
+      });
+    } else if (sort === 'tips-down') {
+      sortByTips(posts, 'down', function (sortedPosts) {
+        buildTable(sortedPosts, function (renderPosts) {
+          that.setState({ posts: renderPosts });
+        });
+      });
+    } else if (sort === 'date-up') {
+      sortByDate(posts, 'up', function (sortedPosts) {
+        buildTable(sortedPosts, function (renderPosts) {
+          that.setState({ posts: renderPosts });
+        });
+      });
+    } else if (sort === 'date-down') {
+      sortByDate(posts, 'down', function (sortedPosts) {
+        buildTable(sortedPosts, function (renderPosts) {
+          that.setState({ posts: renderPosts });
         });
       });
     }
   },
 
-  renderPosts: function renderPosts(posts) {
-    var render = [];
-    if (posts.length > 0) {
-      for (var i = 0; i < posts.length; i++) {
-        var post = posts[i];
-        // Be careful how datetime is displayed, table sorts on alphanumerical order.
-        var date = new Date(post.datetime).toLocaleString();
-        render.push({
-          title: post.title,
-          tips: post.tips,
-          date: date,
-          sha1: React.createElement(
-            'a',
-            { href: "/permalink?sha1=" + post.sha1 },
-            React.createElement(
-              'div',
-              { className: 'table-sha1' },
-              post.sha1
-            )
-          ),
-          bitstore: React.createElement(
-            'a',
-            { href: "https://bitstore-test.blockai.com/" + post.owner + "/sha1/" + post.sha1 },
-            'View Content'
-          )
-        });
-        if (i === posts.length - 1) {
-          this.setState({
-            posts: React.createElement(
-              Table,
-              { data: render, striped: true, hover: true },
-              React.createElement(
-                TableHeaderColumn,
-                { dataField: 'title', dataSort: true },
-                'Title'
-              ),
-              React.createElement(
-                TableHeaderColumn,
-                { dataField: 'tips', isKey: true, dataSort: true },
-                'Tips'
-              ),
-              React.createElement(
-                TableHeaderColumn,
-                { dataField: 'date', dataSort: true },
-                'Date'
-              ),
-              React.createElement(
-                TableHeaderColumn,
-                { dataField: 'sha1' },
-                'SHA1'
-              ),
-              React.createElement(
-                TableHeaderColumn,
-                { dataField: 'bitstore' },
-                'Bitstore'
-              )
-            )
-          });
-        }
-      }
-    }
-  },
-
   render: function render() {
-    if (this.state.loadPosts) {
-      this.getData();
-    }
     return React.createElement(
       'div',
       { className: 'container' },
@@ -303,7 +402,81 @@ var Assets = React.createClass({
             this.state.tipLine
           )
         ),
-        this.state.posts
+        React.createElement(
+          Table,
+          { striped: true, hover: true, responsive: true },
+          React.createElement(
+            'thead',
+            null,
+            React.createElement(
+              'tr',
+              null,
+              React.createElement(
+                'th',
+                null,
+                'Title ',
+                React.createElement(
+                  Button,
+                  { onClick: this.sortPosts.bind(null, 'title-up'), bsSize: 'xsmall' },
+                  React.createElement(Glyphicon, { glyph: 'triangle-top' })
+                ),
+                ' ',
+                React.createElement(
+                  Button,
+                  { onClick: this.sortPosts.bind(null, 'title-down'), bsSize: 'xsmall' },
+                  React.createElement(Glyphicon, { glyph: 'triangle-bottom' })
+                )
+              ),
+              React.createElement(
+                'th',
+                null,
+                'Tips ',
+                React.createElement(
+                  Button,
+                  { onClick: this.sortPosts.bind(null, 'tips-up'), bsSize: 'xsmall' },
+                  React.createElement(Glyphicon, { glyph: 'triangle-top' })
+                ),
+                ' ',
+                React.createElement(
+                  Button,
+                  { onClick: this.sortPosts.bind(null, 'tips-down'), bsSize: 'xsmall' },
+                  React.createElement(Glyphicon, { glyph: 'triangle-bottom' })
+                )
+              ),
+              React.createElement(
+                'th',
+                null,
+                'Date ',
+                React.createElement(
+                  Button,
+                  { onClick: this.sortPosts.bind(null, 'date-up'), bsSize: 'xsmall' },
+                  React.createElement(Glyphicon, { glyph: 'triangle-top' })
+                ),
+                ' ',
+                React.createElement(
+                  Button,
+                  { onClick: this.sortPosts.bind(null, 'date-down'), bsSize: 'xsmall' },
+                  React.createElement(Glyphicon, { glyph: 'triangle-bottom' })
+                )
+              ),
+              React.createElement(
+                'th',
+                null,
+                'SHA1'
+              ),
+              React.createElement(
+                'th',
+                null,
+                'Bitstore'
+              )
+            )
+          ),
+          React.createElement(
+            'tbody',
+            null,
+            this.state.posts
+          )
+        )
       )
     );
   }
