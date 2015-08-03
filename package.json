@@ -1,0 +1,49 @@
+{
+  "name": "react-openpublish-assets",
+  "version": "1.0.0",
+  "description": "A React component for querying and rendering OpenPublish assets",
+  "main": "./src/index.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "build": "make",
+    "build-dev": "watchify example/example.js -o example/build.js -t babelify -v -d",
+    "watch": "nodemon --exec make --ignore example/ --ignore build/",
+    "start": "http-server ./example/ -a 0.0.0.0 -p 9000 -c-1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/howardwu/react-openpublish-assets.git"
+  },
+  "keywords": [
+    "OpenPublish",
+    "Bitcoin",
+    "React"
+  ],
+  "author": "Howard Wu <howardwu@berkeley.edu> (https://github.com/howardwu)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/howardwu/react-openpublish-assets/issues"
+  },
+  "homepage": "https://github.com/howardwu/react-openpublish-assets#readme",
+  "maintainers": {
+    "Howard Wu": "howardwu@berkeley.edu",
+    "Andrew Malta": "andrew.malta@yale.edu"
+  },
+  "dependencies": {
+    "chart.js": "^1.0.2",
+    "openpublish-state": "0.0.2",
+    "react": "^0.13.3",
+    "react-bootstrap": "^0.24.3",
+    "react-chartjs": "^0.6.0",
+    "xhr": "^2.0.3"
+  },
+  "devDependencies": {
+    "babel": "^5.8.20",
+    "babelify": "^6.1.3",
+    "browserify": "^11.0.1",
+    "http-server": "^0.8.0",
+    "watchify": "^3.3.1"
+  }
+}
