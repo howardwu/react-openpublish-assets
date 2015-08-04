@@ -1,6 +1,6 @@
 {
   "name": "react-openpublish-assets",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "A React component for querying and rendering OpenPublish assets",
   "main": "build/index.js",
   "scripts": {
@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "chart.js": "^1.0.2",
+    "express": "^4.13.3",
     "react": "^0.13.3",
     "react-bootstrap": "^0.24.3",
     "react-chartjs": "^0.6.0",

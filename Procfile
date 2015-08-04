@@ -1,1 +1,1 @@
-web: http-server ./example/ -a 0.0.0.0 -p 9000 -c-1;
+web: node web.js;
