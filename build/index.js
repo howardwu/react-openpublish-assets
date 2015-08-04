@@ -32,36 +32,109 @@ function initialize(posts, tips, callback) {
   }
 }
 
-function buildGraph(data, callback) {
+function buildGraph(posts, tips, sort, callback) {
   var dateLine = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  var counter = 0;
-  var length = data.length - 1;
-  data.forEach(function (content) {
-    var n = new Date(content.date).getUTCMonth();
-    dateLine[n] += 1;
-    if (counter === length) {
-      var lineData = {
-        labels: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-        datasets: [{
-          label: "Tips",
-          fillColor: "rgba(151,187,205,0.2)",
-          strokeColor: "rgba(151,187,205,1)",
-          pointColor: "rgba(151,187,205,1)",
-          pointStrokeColor: "#fff",
-          pointHighlightFill: "#fff",
-          pointHighlightStroke: "rgba(151,187,205,1)",
-          data: dateLine
-        }]
-      };
-      callback(lineData);
-    }
-    counter++;
-  });
+  var labels = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  if (sort === 'posts') {
+    var counter = 0;
+    posts.forEach(function (post) {
+      var n = new Date(post.datetime).getUTCMonth();
+      dateLine[n] += 1;
+      if (counter === posts.length - 1) {
+        var lineData = {
+          labels: labels,
+          datasets: [{
+            label: "Tips",
+            fillColor: "rgba(151,187,205,0.2)",
+            strokeColor: "rgba(151,187,205,1)",
+            pointColor: "rgba(151,187,205,1)",
+            pointStrokeColor: "#fff",
+            pointHighlightFill: "#fff",
+            pointHighlightStroke: "rgba(151,187,205,1)",
+            data: dateLine
+          }]
+        };
+        callback(lineData);
+      }
+      counter++;
+    });
+  } else if (sort === 'tips') {
+    var counter = 0;
+    tips.forEach(function (tip) {
+      var n = new Date(tip.date).getUTCMonth();
+      dateLine[n] += 1;
+      if (counter === tips.length - 1) {
+        var lineData = {
+          labels: labels,
+          datasets: [{
+            label: "Tips",
+            fillColor: "rgba(151,187,205,0.2)",
+            strokeColor: "rgba(151,187,205,1)",
+            pointColor: "rgba(151,187,205,1)",
+            pointStrokeColor: "#fff",
+            pointHighlightFill: "#fff",
+            pointHighlightStroke: "rgba(151,187,205,1)",
+            data: dateLine
+          }]
+        };
+        callback(lineData);
+      }
+      counter++;
+    });
+  } else if (sort === 'profit') {
+    var i = 0;
+    tips.forEach(function (tip) {
+      var n = new Date(tip.date).getUTCMonth();
+      dateLine[n] += 0.00013;
+      if (i === tips.length - 1) {
+        var j = 0;
+        posts.forEach(function (post) {
+          var n2 = new Date(post.datetime).getUTCMonth();
+          dateLine[n2] -= 0.000001;
+          if (j === posts.length - 1) {
+            var lineData = {
+              labels: labels,
+              datasets: [{
+                label: "Tips",
+                fillColor: "rgba(151,187,205,0.2)",
+                strokeColor: "rgba(151,187,205,1)",
+                pointColor: "rgba(151,187,205,1)",
+                pointStrokeColor: "#fff",
+                pointHighlightFill: "#fff",
+                pointHighlightStroke: "rgba(151,187,205,1)",
+                data: dateLine
+              }]
+            };
+            callback(lineData);
+          }
+          j++;
+        });
+      }
+      i++;
+    });
+  }
 }
 
 function postsStatistics(posts, tips, callback) {}
 
-function tipsStatistics(posts, tips, callback) {}
+function tipsStatistics(posts, tips, callback) {
+  var avgTips = 0;
+  var maxTips = 0;
+  var i = 0;
+  posts.forEach(function (post) {
+    if (post.tips > maxTips) {
+      maxTips = post.tips;
+    }
+    if (i === posts.length - 1) {
+      var avgTips = 0;
+      if (posts.length > 0) {
+        avgTips = tips.length / posts.length;
+      }
+      callback(avgTips, maxTips);
+    }
+    i++;
+  });
+}
 
 function profitsStatistics(posts, tips, callback) {}
 
@@ -263,168 +336,10 @@ var Assets = React.createClass({
     var numTips = tips.length;
     var numProfits = (numTips * .00013 - (numPosts * .000001 + .0001)).toFixed(5);
     var that = this;
-    buildGraph(tips, function (lineData) {
-      var statistics = React.createElement(
-        'div',
-        null,
-        React.createElement(
-          ButtonGroup,
-          { className: 'assets-buttons' },
-          React.createElement(
-            Button,
-            { onClick: that.sortStatistics.bind(null, 'posts') },
-            React.createElement(
-              'center',
-              null,
-              React.createElement(
-                'p',
-                null,
-                'Total Posts'
-              ),
-              React.createElement(
-                'h1',
-                null,
-                numPosts
-              )
-            )
-          ),
-          React.createElement(
-            Button,
-            { onClick: that.sortStatistics.bind(null, 'tips'), active: true },
-            React.createElement(
-              'center',
-              null,
-              React.createElement(
-                'p',
-                null,
-                'Total Tips'
-              ),
-              React.createElement(
-                'h1',
-                null,
-                numTips
-              )
-            )
-          ),
-          React.createElement(
-            Button,
-            { onClick: that.sortStatistics.bind(null, 'profit') },
-            React.createElement(
-              'center',
-              null,
-              React.createElement(
-                'p',
-                null,
-                'Total Profit'
-              ),
-              React.createElement(
-                'h1',
-                null,
-                React.createElement(Glyphicon, { glyph: 'bitcoin' }),
-                ' ',
-                numProfits
-              )
-            )
-          )
-        ),
-        React.createElement('hr', null),
-        React.createElement(
-          'center',
-          null,
-          React.createElement(LineChart, { data: lineData, options: { responsive: true }, height: '100' })
-        )
-      );
-      callback(statistics);
-    });
-  },
-
-  sortStatistics: function sortStatistics(sort) {
-    var numPosts = this.state.rawPosts.length;
-    var numTips = this.state.rawTips.length;
-    var numProfits = (numTips * .00013 - (numPosts * .000001 + .0001)).toFixed(5);
-    var posts = this.state.rawPosts;
-    var tips = this.state.rawTips;
-    var that = this;
-    if (sort === 'posts') {
-      buildGraph(tips, function (lineData) {
+    buildGraph(null, tips, 'tips', function (lineData) {
+      tipsStatistics(posts, tips, function (avgTips, maxTips) {
         var statistics = React.createElement(
-          'div',
-          null,
-          React.createElement(
-            ButtonGroup,
-            { className: 'assets-buttons' },
-            React.createElement(
-              Button,
-              { onClick: that.sortStatistics.bind(null, 'posts'), active: true },
-              React.createElement(
-                'center',
-                null,
-                React.createElement(
-                  'p',
-                  null,
-                  'Total Posts'
-                ),
-                React.createElement(
-                  'h1',
-                  null,
-                  numPosts
-                )
-              )
-            ),
-            React.createElement(
-              Button,
-              { onClick: that.sortStatistics.bind(null, 'tips') },
-              React.createElement(
-                'center',
-                null,
-                React.createElement(
-                  'p',
-                  null,
-                  'Total Tips'
-                ),
-                React.createElement(
-                  'h1',
-                  null,
-                  numTips
-                )
-              )
-            ),
-            React.createElement(
-              Button,
-              { onClick: that.sortStatistics.bind(null, 'profit') },
-              React.createElement(
-                'center',
-                null,
-                React.createElement(
-                  'p',
-                  null,
-                  'Total Profit'
-                ),
-                React.createElement(
-                  'h1',
-                  null,
-                  React.createElement(Glyphicon, { glyph: 'bitcoin' }),
-                  ' ',
-                  numProfits
-                )
-              )
-            )
-          ),
-          React.createElement('hr', null),
-          React.createElement(
-            'center',
-            null,
-            React.createElement(LineChart, { data: lineData, options: { responsive: true }, height: '100' })
-          )
-        );
-        that.setState({
-          statistics: statistics
-        });
-      });
-    } else if (sort === 'tips') {
-      buildGraph(tips, function (lineData) {
-        var statistics = React.createElement(
-          'div',
+          Panel,
           null,
           React.createElement(
             ButtonGroup,
@@ -479,9 +394,9 @@ var Assets = React.createClass({
                 React.createElement(
                   'h1',
                   null,
-                  React.createElement(Glyphicon, { glyph: 'bitcoin' }),
-                  ' ',
-                  numProfits
+                  '~ ',
+                  numProfits,
+                  ' BTC'
                 )
               )
             )
@@ -491,14 +406,219 @@ var Assets = React.createClass({
             'center',
             null,
             React.createElement(LineChart, { data: lineData, options: { responsive: true }, height: '100' })
+          ),
+          React.createElement('hr', null),
+          React.createElement(
+            'p',
+            null,
+            'Average Number of Tips per Post: ',
+            React.createElement(
+              'b',
+              null,
+              avgTips
+            )
+          ),
+          React.createElement(
+            'p',
+            null,
+            'Record Number of Tips on a Post: ',
+            React.createElement(
+              'b',
+              null,
+              maxTips
+            )
           )
+        );
+        callback(statistics);
+      });
+    });
+  },
+
+  sortStatistics: function sortStatistics(sort) {
+    var numPosts = this.state.rawPosts.length;
+    var numTips = this.state.rawTips.length;
+    var numProfits = (numTips * .00013 - (numPosts * .000001 + .0001)).toFixed(5);
+    var posts = this.state.rawPosts;
+    var tips = this.state.rawTips;
+    var that = this;
+    if (sort === 'posts') {
+      buildGraph(posts, null, 'posts', function (lineData) {
+        var statistics = React.createElement(
+          Panel,
+          null,
+          React.createElement(
+            ButtonGroup,
+            { className: 'assets-buttons' },
+            React.createElement(
+              Button,
+              { onClick: that.sortStatistics.bind(null, 'posts'), active: true },
+              React.createElement(
+                'center',
+                null,
+                React.createElement(
+                  'p',
+                  null,
+                  'Total Posts'
+                ),
+                React.createElement(
+                  'h1',
+                  null,
+                  numPosts
+                )
+              )
+            ),
+            React.createElement(
+              Button,
+              { onClick: that.sortStatistics.bind(null, 'tips') },
+              React.createElement(
+                'center',
+                null,
+                React.createElement(
+                  'p',
+                  null,
+                  'Total Tips'
+                ),
+                React.createElement(
+                  'h1',
+                  null,
+                  numTips
+                )
+              )
+            ),
+            React.createElement(
+              Button,
+              { onClick: that.sortStatistics.bind(null, 'profit') },
+              React.createElement(
+                'center',
+                null,
+                React.createElement(
+                  'p',
+                  null,
+                  'Total Profit'
+                ),
+                React.createElement(
+                  'h1',
+                  null,
+                  '~ ',
+                  numProfits,
+                  ' BTC'
+                )
+              )
+            )
+          ),
+          React.createElement('hr', null),
+          React.createElement(
+            'center',
+            null,
+            React.createElement(LineChart, { data: lineData, options: { responsive: true }, height: '100' })
+          ),
+          React.createElement('hr', null)
         );
         that.setState({
           statistics: statistics
         });
       });
+    } else if (sort === 'tips') {
+      buildGraph(null, tips, 'tips', function (lineData) {
+        tipsStatistics(posts, tips, function (avgTips, maxTips) {
+          var statistics = React.createElement(
+            Panel,
+            null,
+            React.createElement(
+              ButtonGroup,
+              { className: 'assets-buttons' },
+              React.createElement(
+                Button,
+                { onClick: that.sortStatistics.bind(null, 'posts') },
+                React.createElement(
+                  'center',
+                  null,
+                  React.createElement(
+                    'p',
+                    null,
+                    'Total Posts'
+                  ),
+                  React.createElement(
+                    'h1',
+                    null,
+                    numPosts
+                  )
+                )
+              ),
+              React.createElement(
+                Button,
+                { onClick: that.sortStatistics.bind(null, 'tips'), active: true },
+                React.createElement(
+                  'center',
+                  null,
+                  React.createElement(
+                    'p',
+                    null,
+                    'Total Tips'
+                  ),
+                  React.createElement(
+                    'h1',
+                    null,
+                    numTips
+                  )
+                )
+              ),
+              React.createElement(
+                Button,
+                { onClick: that.sortStatistics.bind(null, 'profit') },
+                React.createElement(
+                  'center',
+                  null,
+                  React.createElement(
+                    'p',
+                    null,
+                    'Total Profit'
+                  ),
+                  React.createElement(
+                    'h1',
+                    null,
+                    '~ ',
+                    numProfits,
+                    ' BTC'
+                  )
+                )
+              )
+            ),
+            React.createElement('hr', null),
+            React.createElement(
+              'center',
+              null,
+              React.createElement(LineChart, { data: lineData, options: { responsive: true }, height: '100' })
+            ),
+            React.createElement('hr', null),
+            React.createElement(
+              'p',
+              null,
+              'Average Number of Tips per Post: ',
+              React.createElement(
+                'b',
+                null,
+                avgTips
+              )
+            ),
+            React.createElement(
+              'p',
+              null,
+              'Record Number of Tips on a Post: ',
+              React.createElement(
+                'b',
+                null,
+                maxTips
+              )
+            )
+          );
+          that.setState({
+            statistics: statistics
+          });
+        });
+      });
     } else if (sort === 'profit') {
-      buildGraph(tips, function (lineData) {
+      buildGraph(posts, tips, 'profit', function (lineData) {
         var statistics = React.createElement(
           Panel,
           null,
@@ -555,13 +675,14 @@ var Assets = React.createClass({
                 React.createElement(
                   'h1',
                   null,
-                  React.createElement(Glyphicon, { glyph: 'bitcoin' }),
-                  ' ',
-                  numProfits
+                  '~ ',
+                  numProfits,
+                  ' BTC'
                 )
               )
             )
           ),
+          React.createElement('hr', null),
           React.createElement(
             'center',
             null,
@@ -585,7 +706,7 @@ var Assets = React.createClass({
             React.createElement(
               'b',
               null,
-              (numPosts * .000001 + .0001).toFixed(5)
+              (numPosts * .000001).toFixed(5)
             )
           )
         );
@@ -594,33 +715,6 @@ var Assets = React.createClass({
         });
       });
     }
-
-    // var numTips = 0;
-    // var maxTips = 0;
-
-    // var counter = 0;
-    // var that = this;
-    // tipsData.forEach(function (tips) {
-    //   numTips += 1;
-    //   if (counter === tipsData.length - 1) {
-
-    //     var i = 0;
-    //     posts.forEach(function (post) {
-    //       if (post.tips > maxTips) {
-    //         maxTips = post.tips;
-    //       }
-    //       if (i === posts.length - 1) {
-    //         var avgTips = 0;
-    //         if (numPosts > 0) {
-    //           avgTips = numTips / numPosts;             
-    //         }
-    //       }
-    //       i++;
-    //     });
-
-    //   }
-    //   counter++;
-    // });
   },
 
   renderPosts: function renderPosts(posts, callback) {
@@ -911,10 +1005,9 @@ var Assets = React.createClass({
         ' ',
         React.createElement('br', null),
         this.state.statistics,
-        React.createElement('hr', null),
         React.createElement(
           Table,
-          { striped: true, hover: true, border: true, responsive: true },
+          { striped: true, hover: true, responsive: true },
           React.createElement(
             'thead',
             null,
