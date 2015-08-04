@@ -7,7 +7,7 @@
     "build": "make",
     "build-dev": "watchify example/example.js -o example/build.js -t babelify -v -d",
     "watch": "nodemon --exec make --ignore example/ --ignore build/",
-    "start": "http-server ./example/ -a 0.0.0.0 -p 9000 -c-1"
+    "start": "node ./example/web.js"
   },
   "repository": {
     "type": "git",
