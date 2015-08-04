@@ -11,21 +11,141 @@ var PageHeader = require('react-bootstrap/lib/PageHeader');
 var ButtonGroup = require('react-bootstrap/lib/ButtonGroup');
 
 var LineChart = require("react-chartjs").Line;
-var PieChart = require("react-chartjs").Pie;
 
-function datePosts(data, callback) {
-  var dateLine = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
-  var counter = 0;
-  var length = data.length - 1;
-  data.forEach(function (data) {
-    var n = new Date(data.date).getUTCMonth();
-    dateLine[n] += 1;
-    if (counter === length) {
-      callback(dateLine);
+function initialize(posts, tips, callback) {
+  var tipsData = [];
+  for (var i = 0; i < posts.length; i++) {
+    var post = posts[i];
+    if (tips[post.sha1] != undefined && tips[post.sha1].length > 0) {
+      tips[post.sha1].forEach(function (tip) {
+        tipsData.push({
+          date: tip.datetime,
+          title: post.title
+        });
+      });
     }
-    counter++;
+    if (i === posts.length - 1) {
+      callback(posts, tipsData);
+    }
+  }
+}
+
+function buildGraph(posts, tips, sort, callback) {
+  var dateLine = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  var labels = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  if (sort === 'posts') {
+    var counter = 0;
+    posts.forEach(function (post) {
+      var n = new Date(post.datetime).getUTCMonth();
+      dateLine[n] += 1;
+      if (counter === posts.length - 1) {
+        var lineData = {
+          labels: labels,
+          datasets: [
+            {
+              label: "Tips",
+              fillColor: "rgba(151,187,205,0.2)",
+              strokeColor: "rgba(151,187,205,1)",
+              pointColor: "rgba(151,187,205,1)",
+              pointStrokeColor: "#fff",
+              pointHighlightFill: "#fff",
+              pointHighlightStroke: "rgba(151,187,205,1)",
+              data: dateLine
+            }
+          ]
+        };
+        callback(lineData);
+      }
+      counter++;
+    });
+  }
+  else if (sort === 'tips') {
+    var counter = 0;
+    tips.forEach(function (tip) {
+      var n = new Date(tip.date).getUTCMonth();
+      dateLine[n] += 1;
+      if (counter === tips.length - 1) {
+        var lineData = {
+          labels: labels,
+          datasets: [
+            {
+              label: "Tips",
+              fillColor: "rgba(151,187,205,0.2)",
+              strokeColor: "rgba(151,187,205,1)",
+              pointColor: "rgba(151,187,205,1)",
+              pointStrokeColor: "#fff",
+              pointHighlightFill: "#fff",
+              pointHighlightStroke: "rgba(151,187,205,1)",
+              data: dateLine
+            }
+          ]
+        };
+        callback(lineData);
+      }
+      counter++;
+    });
+  }
+  else if (sort === 'profit') {
+    var i = 0;
+    tips.forEach(function (tip) {
+      var n = new Date(tip.date).getUTCMonth();
+      dateLine[n] += 0.00013;
+      if (i === tips.length - 1) {
+        var j = 0;
+        posts.forEach(function (post) {
+          var n2 = new Date(post.datetime).getUTCMonth();
+          dateLine[n2] -= 0.000001;
+          if (j === posts.length - 1) {
+            var lineData = {
+              labels: labels,
+              datasets: [
+                {
+                  label: "Tips",
+                  fillColor: "rgba(151,187,205,0.2)",
+                  strokeColor: "rgba(151,187,205,1)",
+                  pointColor: "rgba(151,187,205,1)",
+                  pointStrokeColor: "#fff",
+                  pointHighlightFill: "#fff",
+                  pointHighlightStroke: "rgba(151,187,205,1)",
+                  data: dateLine
+                }
+              ]
+            };
+            callback(lineData);
+          }
+          j++;
+        });
+      }
+      i++;
+    });
+  }
+}
+
+function postsStatistics(posts, tips, callback) {
+
+}
+
+function tipsStatistics(posts, tips, callback) {
+  var avgTips = 0;
+  var maxTips = 0;
+  var i = 0;
+  posts.forEach(function (post) {
+    if (post.tips > maxTips) {
+      maxTips = post.tips;
+    }
+    if (i === posts.length - 1) {
+      var avgTips = 0;
+      if (posts.length > 0) {
+        avgTips = tips.length / posts.length;              
+      }
+      callback(avgTips, maxTips);
+    }
+    i++;
   });
+}
+
+function profitsStatistics(posts, tips, callback) {
+
 }
 
 function sortByTitle(posts, sort, callback) {
@@ -153,95 +273,188 @@ var Assets = React.createClass({
     }, function (err, resp, body) {
       console.log("Received response from server");
       if (!err) {
-        var posts = JSON.parse(body).posts;
-        var tips = JSON.parse(body).tips;
-
-        var tipsData = [];
-        for (var i = 0; i < posts.length; i++) {
-          var post = posts[i];
-          if (tips[post.sha1] != undefined && tips[post.sha1].length > 0) {
-            tips[post.sha1].forEach(function (tip) {
-              tipsData.push({
-                date: tip.datetime,
-                title: post.title
+        initialize(JSON.parse(body).posts, JSON.parse(body).tips, function (posts, tips) {
+          that.renderStatistics(posts, tips, function (statistics) {
+            that.renderPosts(posts, function (sortedPosts) {
+              that.setState({ 
+                statistics: statistics,
+                title: <th>Title <img className="both-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
+                tips: <th>Tips <img className="both-caret" onClick={that.sortPosts.bind(null, "tips-up")}></img></th>,
+                date: <th>Date <img className="both-caret" onClick={that.sortPosts.bind(null, "date-up")}></img></th>,
+                sha1: <th>SHA1 <img className="both-caret" onClick={that.sortPosts.bind(null, "sha1-up")}></img></th>,
+                posts: sortedPosts,
+                rawPosts: posts,
+                rawTips: tips
               });
             });
-          }
-          if (i === posts.length - 1) {
-            that.renderStatistics(posts, tipsData, function (numPosts, numTips, maxTips, avgTips) {
-              that.renderGraph(tipsData, function (lineChart) {
-                that.renderPosts(posts, function (sortedPosts) {
-                  that.setState({ 
-                    numPosts: numPosts,
-                    numTips: numTips,
-                    maxTips: maxTips,
-                    avgTips: avgTips,
-                    tipLine: lineChart,
-                    posts: sortedPosts,
-                    title: <th>Title <img className="both-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
-                    tips: <th>Tips <img className="both-caret" onClick={that.sortPosts.bind(null, "tips-up")}></img></th>,
-                    date: <th>Date <img className="both-caret" onClick={that.sortPosts.bind(null, "date-up")}></img></th>,
-                    sha1: <th>SHA1 <img className="both-caret" onClick={that.sortPosts.bind(null, "sha1-up")}></img></th>,
-                    rawPosts: posts
-                  });
-                });
-              });
-            });
-          }
-        }
-      }
-    });
-  },
-
-  renderStatistics: function (posts, tipsData, callback) {
-    var numPosts = posts.length;
-    var numTips = 0;
-    var maxTips = 0;
-
-    var counter = 0;
-    var that = this;
-    tipsData.forEach(function (tips) {
-      numTips += 1;
-      if (counter === tipsData.length - 1) {
-        var i = 0;
-        posts.forEach(function (post) {
-          if (post.tips > maxTips) {
-            maxTips = post.tips;
-          }
-          if (i === posts.length - 1) {
-            var avgTips = 0;
-            if (numPosts > 0) {
-              avgTips = numTips / numPosts;
-            }
-            callback(numPosts, numTips, maxTips, avgTips);
-          }
-          i++;
+          });
         });
       }
-      counter++;
     });
   },
 
-  renderGraph: function (data, callback) {
-    if (data.length > 0) {
-      var that = this;
-      datePosts(data, function (dataLine) {
-        var lineData = {
-          labels: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-          datasets: [
-            {
-              label: "Tips",
-              fillColor: "rgba(151,187,205,0.2)",
-              strokeColor: "rgba(151,187,205,1)",
-              pointColor: "rgba(151,187,205,1)",
-              pointStrokeColor: "#fff",
-              pointHighlightFill: "#fff",
-              pointHighlightStroke: "rgba(151,187,205,1)",
-              data: dataLine
-            }
-          ]
-        };
-        callback(<LineChart data={lineData} options={{responsive: true}} height="100" />);
+  renderStatistics: function (posts, tips, callback) {
+    var numPosts = posts.length;
+    var numTips = tips.length;
+    var numProfits = ((numTips * .00013) - (numPosts * .000001 + .0001)).toFixed(5);
+    var that = this;
+    buildGraph(null, tips, 'tips', function (lineData) {
+      tipsStatistics(posts, tips, function (avgTips, maxTips) {
+        var statistics = (
+          <Panel>
+            <ButtonGroup className="assets-buttons">
+              <Button onClick={that.sortStatistics.bind(null, 'posts')}>
+                <center>
+                  <p>Total Posts</p>
+                  <h1>{numPosts}</h1>
+                </center>
+              </Button>
+              <Button onClick={that.sortStatistics.bind(null, 'tips')} active>
+                <center>
+                  <p>Total Tips</p>
+                  <h1>{numTips}</h1>
+                </center>
+              </Button>
+              <Button onClick={that.sortStatistics.bind(null, 'profit')}>
+                <center>
+                  <p>Total Profit</p>
+                  <h1>~ {numProfits} BTC</h1>
+                </center>
+              </Button>
+            </ButtonGroup>
+            <hr />
+            <center>
+              <LineChart data={lineData} options={{responsive: true}} height="100" />
+            </center>
+            <hr />
+            <p>Average Number of Tips per Post: <b>{avgTips}</b></p>
+            <p>Record Number of Tips on a Post: <b>{maxTips}</b></p>
+          </Panel>
+        );
+        callback(statistics);
+      });
+    });
+  },
+
+  sortStatistics: function (sort) {
+    var numPosts = this.state.rawPosts.length;
+    var numTips = this.state.rawTips.length;
+    var numProfits = ((numTips * .00013) - (numPosts * .000001 + .0001)).toFixed(5);
+    var posts = this.state.rawPosts;
+    var tips = this.state.rawTips;
+    var that = this;
+    if (sort === 'posts') {
+      buildGraph(posts, null, 'posts', function (lineData) {
+        var statistics = (
+          <Panel>
+            <ButtonGroup className="assets-buttons">
+              <Button onClick={that.sortStatistics.bind(null, 'posts')} active>
+                <center>
+                  <p>Total Posts</p>
+                  <h1>{numPosts}</h1>
+                </center>
+              </Button>
+              <Button onClick={that.sortStatistics.bind(null, 'tips')}>
+                <center>
+                  <p>Total Tips</p>
+                  <h1>{numTips}</h1>
+                </center>
+              </Button>
+              <Button onClick={that.sortStatistics.bind(null, 'profit')}>
+                <center>
+                  <p>Total Profit</p>
+                  <h1>~ {numProfits} BTC</h1>
+                </center>
+              </Button>
+            </ButtonGroup>
+            <hr />
+            <center>
+              <LineChart data={lineData} options={{responsive: true}} height="100" />
+            </center>
+            <hr />
+          </Panel>
+        );
+        that.setState({
+          statistics: statistics
+        });
+      });
+    }
+    else if (sort === 'tips') {
+      buildGraph(null, tips, 'tips', function (lineData) {
+        tipsStatistics(posts, tips, function (avgTips, maxTips) {
+          var statistics = (
+            <Panel>
+              <ButtonGroup className="assets-buttons">
+                <Button onClick={that.sortStatistics.bind(null, 'posts')}>
+                  <center>
+                    <p>Total Posts</p>
+                    <h1>{numPosts}</h1>
+                  </center>
+                </Button>
+                <Button onClick={that.sortStatistics.bind(null, 'tips')} active>
+                  <center>
+                    <p>Total Tips</p>
+                    <h1>{numTips}</h1>
+                  </center>
+                </Button>
+                <Button onClick={that.sortStatistics.bind(null, 'profit')}>
+                  <center>
+                    <p>Total Profit</p>
+                    <h1>~ {numProfits} BTC</h1>
+                  </center>
+                </Button>
+              </ButtonGroup>
+              <hr />
+              <center>
+                <LineChart data={lineData} options={{responsive: true}} height="100" />
+              </center>
+              <hr />
+              <p>Average Number of Tips per Post: <b>{avgTips}</b></p>
+              <p>Record Number of Tips on a Post: <b>{maxTips}</b></p>
+            </Panel>
+          );
+          that.setState({
+            statistics: statistics
+          });
+        });
+      });
+    }
+    else if (sort === 'profit') {
+      buildGraph(posts, tips, 'profit', function (lineData) {
+        var statistics = (
+          <Panel>
+            <ButtonGroup className="assets-buttons">
+              <Button onClick={that.sortStatistics.bind(null, 'posts')}>
+                <center>
+                  <p>Total Posts</p>
+                  <h1>{numPosts}</h1>
+                </center>
+              </Button>
+              <Button onClick={that.sortStatistics.bind(null, 'tips')}>
+                <center>
+                  <p>Total Tips</p>
+                  <h1>{numTips}</h1>
+                </center>
+              </Button>
+              <Button onClick={that.sortStatistics.bind(null, 'profit')} active>
+                <center>
+                  <p>Total Profit</p>
+                  <h1>~ {numProfits} BTC</h1>
+                </center>
+              </Button>
+            </ButtonGroup>
+            <hr />
+            <center>
+              <LineChart data={lineData} options={{responsive: true}} height="100" />
+            </center>
+            <hr />
+            <p>Total Revenue: <b>{(numTips * .00013).toFixed(5)}</b></p>
+            <p>Total Bitstore Costs: <b>{(numPosts * .000001).toFixed(5)}</b></p>
+          </Panel>
+        );
+        that.setState({
+          statistics: statistics
+        });
       });
     }
   },
@@ -369,33 +582,7 @@ var Assets = React.createClass({
         <Panel>
           <b style={{fontSize: "25px"}}> {this.props.address + "\'s Assets"} </b> 
           <br /> <br />
-
-          <ButtonGroup className="assets-buttons">
-            <Button>
-              <center>
-                <p>Total Posts</p>
-                <h1>{this.state.numPosts}</h1>
-              </center>
-            </Button>
-            <Button active>
-              <center>
-                <p>Total Tips</p>
-                <h1>{this.state.numTips}</h1>
-              </center>
-            </Button>
-            <Button>
-              <center>
-                <p>Total Profit</p>
-                <h1>{this.state.numPosts}</h1>
-              </center>
-            </Button>
-          </ButtonGroup>
-          <Panel>
-            <center>{this.state.tipLine}</center>
-          </Panel>
-
           {this.state.statistics}
-
           <Table striped hover responsive>
             <thead>
               <tr>
