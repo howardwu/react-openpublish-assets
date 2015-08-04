@@ -8,6 +8,7 @@ var Table = require('react-bootstrap/lib/Table');
 var Button = require('react-bootstrap/lib/Button');
 var Glyphicon = require('react-bootstrap/lib/Glyphicon');
 var PageHeader = require('react-bootstrap/lib/PageHeader');
+var ButtonGroup = require('react-bootstrap/lib/ButtonGroup');
 
 var LineChart = require("react-chartjs").Line;
 var PieChart = require("react-chartjs").Pie;
@@ -136,11 +137,10 @@ function buildTable(sortedPosts, callback) {
 var Assets = React.createClass({
   getInitialState: function() {
     return {
-      posts: [],
-      loadPosts: true
+      posts: []
     }
   },
-  
+
   componentDidMount: function() {
     var address = this.props.address;
     var that = this;
@@ -178,10 +178,10 @@ var Assets = React.createClass({
                     avgTips: avgTips,
                     tipLine: lineChart,
                     posts: sortedPosts,
-                    title: <th>Title <img className="both-caret" onClick={that.updateHeaders.bind(null, "title-up")}></img></th>,
-                    tips: <th>Tips <img className="both-caret" onClick={that.updateHeaders.bind(null, "tips-up")}></img></th>,
-                    date: <th>Date <img className="both-caret" onClick={that.updateHeaders.bind(null, "date-up")}></img></th>,
-                    sha1: <th>SHA1 <img className="both-caret" onClick={that.updateHeaders.bind(null, "sha1-up")}></img></th>,
+                    title: <th>Title <img className="both-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
+                    tips: <th>Tips <img className="both-caret" onClick={that.sortPosts.bind(null, "tips-up")}></img></th>,
+                    date: <th>Date <img className="both-caret" onClick={that.sortPosts.bind(null, "date-up")}></img></th>,
+                    sha1: <th>SHA1 <img className="both-caret" onClick={that.sortPosts.bind(null, "sha1-up")}></img></th>,
                     rawPosts: posts
                   });
                 });
@@ -247,86 +247,11 @@ var Assets = React.createClass({
   },
 
   renderPosts: function (posts, callback) {
-    sortByTips(posts, 'up', function (sortedPosts) {
+    sortByDate(posts, 'up', function (sortedPosts) {
       buildTable(sortedPosts, function (renderPosts) {
         callback(renderPosts);
       });
     });
-  },
-
-  updateHeaders: function (param) {
-    if (param === 'title-up') {
-      this.sortPosts('title-up');
-      this.setState({
-        title: <th>Title <img className="up-caret" onClick={this.updateHeaders.bind(null, "title-down")}></img></th>,
-        tips: <th>Tips <img className="both-caret" onClick={this.updateHeaders.bind(null, "tips-up")}></img></th>,
-        date: <th>Date <img className="both-caret" onClick={this.updateHeaders.bind(null, "date-up")}></img></th>,
-        sha1: <th>SHA1 <img className="both-caret" onClick={this.updateHeaders.bind(null, "sha1-up")}></img></th>
-      });
-    }
-    else if (param === 'title-down'){
-      this.sortPosts('title-down');
-      this.setState({
-        title: <th>Title <img className="down-caret" onClick={this.updateHeaders.bind(null, "title-up")}></img></th>,
-        tips: <th>Tips <img className="both-caret" onClick={this.updateHeaders.bind(null, "tips-up")}></img></th>,
-        date: <th>Date <img className="both-caret" onClick={this.updateHeaders.bind(null, "date-up")}></img></th>,
-        sha1: <th>SHA1 <img className="both-caret" onClick={this.updateHeaders.bind(null, "sha1-up")}></img></th>
-      })
-    }
-    else if (param === 'tips-up') {
-      this.sortPosts('tips-up');
-      this.setState({
-        title: <th>Title <img className="both-caret" onClick={this.updateHeaders.bind(null, "title-up")}></img></th>,
-        tips: <th>Tips <img className="up-caret" onClick={this.updateHeaders.bind(null, "tips-down")}></img></th>,
-        date: <th>Date <img className="both-caret" onClick={this.updateHeaders.bind(null, "date-up")}></img></th>,
-        sha1: <th>SHA1 <img className="both-caret" onClick={this.updateHeaders.bind(null, "sha1-up")}></img></th>        
-      })
-    }
-    else if (param === 'tips-down'){
-      this.sortPosts('tips-down');
-      this.setState({
-        title: <th>Title <img className="both-caret" onClick={this.updateHeaders.bind(null, "title-up")}></img></th>,
-        tips: <th>Tips <img className="down-caret" onClick={this.updateHeaders.bind(null, "tips-up")}></img></th>,
-        date: <th>Date <img className="both-caret" onClick={this.updateHeaders.bind(null, "date-up")}></img></th>,
-        sha1: <th>SHA1 <img className="both-caret" onClick={this.updateHeaders.bind(null, "sha1-up")}></img></th>
-      })
-    }
-    else if (param === 'date-up') {
-      this.sortPosts('date-up');
-      this.setState({
-        title: <th>Title <img className="both-caret" onClick={this.updateHeaders.bind(null, "title-up")}></img></th>,
-        tips: <th>Tips <img className="both-caret" onClick={this.updateHeaders.bind(null, "tips-up")}></img></th>,
-        date: <th>Date <img className="up-caret" onClick={this.updateHeaders.bind(null, "date-down")}></img></th>,
-        sha1: <th>SHA1 <img className="both-caret" onClick={this.updateHeaders.bind(null, "sha1-up")}></img></th>
-      })
-    }
-    else if (param === 'date-down'){
-      this.sortPosts('date-down');
-      this.setState({
-        title: <th>Title <img className="both-caret" onClick={this.updateHeaders.bind(null, "title-up")}></img></th>,
-        tips: <th>Tips <img className="both-caret" onClick={this.updateHeaders.bind(null, "tips-up")}></img></th>,
-        date: <th>Date <img className="down-caret" onClick={this.updateHeaders.bind(null, "date-up")}></img></th>,
-        sha1: <th>SHA1 <img className="both-caret" onClick={this.updateHeaders.bind(null, "sha1-up")}></img></th>
-      })
-    }
-    else if (param === 'sha1-up') {
-      this.sortPosts('sha1-up');
-      this.setState({
-        title: <th>Title <img className="both-caret" onClick={this.updateHeaders.bind(null, "title-up")}></img></th>,
-        tips: <th>Tips <img className="both-caret" onClick={this.updateHeaders.bind(null, "tips-up")}></img></th>,
-        date: <th>Date <img className="both-caret" onClick={this.updateHeaders.bind(null, "date-up")}></img></th>,
-        sha1: <th>SHA1 <img className="up-caret" onClick={this.updateHeaders.bind(null, "sha1-down")}></img></th>
-      })
-    }
-    else if (param === 'sha1-down'){
-      this.sortPosts('sha1-down');
-      this.setState({
-        title: <th>Title <img className="both-caret" onClick={this.updateHeaders.bind(null, "title-up")}></img></th>,
-        tips: <th>Tips <img className="both-caret" onClick={this.updateHeaders.bind(null, "tips-up")}></img></th>,
-        date: <th>Date <img className="both-caret" onClick={this.updateHeaders.bind(null, "date-up")}></img></th>,
-        sha1: <th>SHA1 <img className="down-caret" onClick={this.updateHeaders.bind(null, "sha1-up")}></img></th>
-      })
-    }
   },
 
   sortPosts: function (sort) {
@@ -335,56 +260,104 @@ var Assets = React.createClass({
     if (sort === 'title-up') {
       sortByTitle(posts, 'up', function (sortedPosts) {
         buildTable(sortedPosts, function (renderPosts) {
-          that.setState({ posts: renderPosts });
+          that.setState({
+            posts: renderPosts,
+            title: <th>Title <img className="up-caret" onClick={that.sortPosts.bind(null, "title-down")}></img></th>,
+            tips: <th>Tips <img className="both-caret" onClick={that.sortPosts.bind(null, "tips-up")}></img></th>,
+            date: <th>Date <img className="both-caret" onClick={that.sortPosts.bind(null, "date-up")}></img></th>,
+            sha1: <th>SHA1 <img className="both-caret" onClick={that.sortPosts.bind(null, "sha1-up")}></img></th>
+          });
         });
       });
     }
     else if (sort === 'title-down') {
       sortByTitle(posts, 'down', function (sortedPosts) {
         buildTable(sortedPosts, function (renderPosts) {
-          that.setState({ posts: renderPosts });
+          that.setState({
+            posts: renderPosts,
+            title: <th>Title <img className="down-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
+            tips: <th>Tips <img className="both-caret" onClick={that.sortPosts.bind(null, "tips-up")}></img></th>,
+            date: <th>Date <img className="both-caret" onClick={that.sortPosts.bind(null, "date-up")}></img></th>,
+            sha1: <th>SHA1 <img className="both-caret" onClick={that.sortPosts.bind(null, "sha1-up")}></img></th>
+          });
         });
       });
     }
     else if (sort === 'tips-up') {
       sortByTips(posts, 'up', function (sortedPosts) {
         buildTable(sortedPosts, function (renderPosts) {
-          that.setState({ posts: renderPosts });
+          that.setState({
+            posts: renderPosts,
+            title: <th>Title <img className="both-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
+            tips: <th>Tips <img className="up-caret" onClick={that.sortPosts.bind(null, "tips-down")}></img></th>,
+            date: <th>Date <img className="both-caret" onClick={that.sortPosts.bind(null, "date-up")}></img></th>,
+            sha1: <th>SHA1 <img className="both-caret" onClick={that.sortPosts.bind(null, "sha1-up")}></img></th>
+          });
         });
       });
     }
     else if (sort === 'tips-down') {
       sortByTips(posts, 'down', function (sortedPosts) {
         buildTable(sortedPosts, function (renderPosts) {
-          that.setState({ posts: renderPosts });
+          that.setState({
+            posts: renderPosts,
+            title: <th>Title <img className="both-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
+            tips: <th>Tips <img className="down-caret" onClick={that.sortPosts.bind(null, "tips-up")}></img></th>,
+            date: <th>Date <img className="both-caret" onClick={that.sortPosts.bind(null, "date-up")}></img></th>,
+            sha1: <th>SHA1 <img className="both-caret" onClick={that.sortPosts.bind(null, "sha1-up")}></img></th>
+          });
         });
       });
     }
     else if (sort === 'date-up') {
       sortByDate(posts, 'up', function (sortedPosts) {
         buildTable(sortedPosts, function (renderPosts) {
-          that.setState({ posts: renderPosts });
+          that.setState({
+            posts: renderPosts,
+            title: <th>Title <img className="both-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
+            tips: <th>Tips <img className="both-caret" onClick={that.sortPosts.bind(null, "tips-up")}></img></th>,
+            date: <th>Date <img className="up-caret" onClick={that.sortPosts.bind(null, "date-down")}></img></th>,
+            sha1: <th>SHA1 <img className="both-caret" onClick={that.sortPosts.bind(null, "sha1-up")}></img></th>
+          });
         });
       });
     }
     else if (sort === 'date-down') {
       sortByDate(posts, 'down', function (sortedPosts) {
         buildTable(sortedPosts, function (renderPosts) {
-          that.setState({ posts: renderPosts });
+          that.setState({
+            posts: renderPosts,
+            title: <th>Title <img className="both-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
+            tips: <th>Tips <img className="both-caret" onClick={that.sortPosts.bind(null, "tips-up")}></img></th>,
+            date: <th>Date <img className="down-caret" onClick={that.sortPosts.bind(null, "date-up")}></img></th>,
+            sha1: <th>SHA1 <img className="both-caret" onClick={that.sortPosts.bind(null, "sha1-up")}></img></th>
+          });
         });
       });
     }
     else if (sort === 'sha1-up') {
       sortBySHA1(posts, 'up', function (sortedPosts) {
         buildTable(sortedPosts, function (renderPosts) {
-          that.setState({ posts: renderPosts });
+          that.setState({
+            posts: renderPosts,
+            title: <th>Title <img className="both-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
+            tips: <th>Tips <img className="both-caret" onClick={that.sortPosts.bind(null, "tips-up")}></img></th>,
+            date: <th>Date <img className="both-caret" onClick={that.sortPosts.bind(null, "date-up")}></img></th>,
+            sha1: <th>SHA1 <img className="up-caret" onClick={that.sortPosts.bind(null, "sha1-down")}></img></th>
+          });
         });
       });
     }
     else if (sort === 'sha1-down') {
       sortBySHA1(posts, 'down', function (sortedPosts) {
         buildTable(sortedPosts, function (renderPosts) {
-          that.setState({ posts: renderPosts });
+          that.setState({
+            posts: renderPosts,
+            title: <th>Title <img className="both-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
+            tips: <th>Tips <img className="both-caret" onClick={that.sortPosts.bind(null, "tips-up")}></img></th>,
+            date: <th>Date <img className="both-caret" onClick={that.sortPosts.bind(null, "date-up")}></img></th>,
+            sha1: <th>SHA1 <img className="down-caret" onClick={that.sortPosts.bind(null, "sha1-up")}></img></th>
+          });
         });
       });
     }
@@ -395,24 +368,34 @@ var Assets = React.createClass({
       <div className="container">
         <Panel>
           <b style={{fontSize: "25px"}}> {this.props.address + "\'s Assets"} </b> 
-          <br /> <br /> 
-          <Panel>
-            <div className="assetStats">
-              <p>Total Posts: <b>{this.state.numPosts}</b></p>
-              <p>Total Tips: <b>{this.state.numTips}</b></p>
-            </div>
-            <div className="assetStats">
-              <p>Average Tips per Post: <b>{this.state.avgTips}</b></p>
-              <p>Record Tips on a Post: <b>{this.state.maxTips}</b></p>
-            </div>
-            <div className="assetStats">
-              <p>Total Revenue: <b>{(this.state.numTips * .00013).toFixed(5)}</b></p>
-              <p>Total Bitstore Costs: <b>{(this.state.numPosts * .000001 + .0001).toFixed(5)}</b></p>
-            </div>
-          </Panel>
+          <br /> <br />
+
+          <ButtonGroup className="assets-buttons">
+            <Button>
+              <center>
+                <p>Total Posts</p>
+                <h1>{this.state.numPosts}</h1>
+              </center>
+            </Button>
+            <Button active>
+              <center>
+                <p>Total Tips</p>
+                <h1>{this.state.numTips}</h1>
+              </center>
+            </Button>
+            <Button>
+              <center>
+                <p>Total Profit</p>
+                <h1>{this.state.numPosts}</h1>
+              </center>
+            </Button>
+          </ButtonGroup>
           <Panel>
             <center>{this.state.tipLine}</center>
           </Panel>
+
+          {this.state.statistics}
+
           <Table striped hover responsive>
             <thead>
               <tr>

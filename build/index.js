@@ -10,6 +10,7 @@ var Table = require('react-bootstrap/lib/Table');
 var Button = require('react-bootstrap/lib/Button');
 var Glyphicon = require('react-bootstrap/lib/Glyphicon');
 var PageHeader = require('react-bootstrap/lib/PageHeader');
+var ButtonGroup = require('react-bootstrap/lib/ButtonGroup');
 
 var LineChart = require("react-chartjs").Line;
 var PieChart = require("react-chartjs").Pie;
@@ -166,8 +167,7 @@ var Assets = React.createClass({
 
   getInitialState: function getInitialState() {
     return {
-      posts: [],
-      loadPosts: true
+      posts: []
     };
   },
 
@@ -212,25 +212,25 @@ var Assets = React.createClass({
                       'th',
                       null,
                       'Title ',
-                      React.createElement('img', { className: 'both-caret', onClick: that.updateHeaders.bind(null, "title-up") })
+                      React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "title-up") })
                     ),
                     tips: React.createElement(
                       'th',
                       null,
                       'Tips ',
-                      React.createElement('img', { className: 'both-caret', onClick: that.updateHeaders.bind(null, "tips-up") })
+                      React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "tips-up") })
                     ),
                     date: React.createElement(
                       'th',
                       null,
                       'Date ',
-                      React.createElement('img', { className: 'both-caret', onClick: that.updateHeaders.bind(null, "date-up") })
+                      React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "date-up") })
                     ),
                     sha1: React.createElement(
                       'th',
                       null,
                       'SHA1 ',
-                      React.createElement('img', { className: 'both-caret', onClick: that.updateHeaders.bind(null, "sha1-up") })
+                      React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "sha1-up") })
                     ),
                     rawPosts: posts
                   });
@@ -295,239 +295,11 @@ var Assets = React.createClass({
   },
 
   renderPosts: function renderPosts(posts, callback) {
-    sortByTips(posts, 'up', function (sortedPosts) {
+    sortByDate(posts, 'up', function (sortedPosts) {
       buildTable(sortedPosts, function (renderPosts) {
         callback(renderPosts);
       });
     });
-  },
-
-  updateHeaders: function updateHeaders(param) {
-    if (param === 'title-up') {
-      this.sortPosts('title-up');
-      this.setState({
-        title: React.createElement(
-          'th',
-          null,
-          'Title ',
-          React.createElement('img', { className: 'up-caret', onClick: this.updateHeaders.bind(null, "title-down") })
-        ),
-        tips: React.createElement(
-          'th',
-          null,
-          'Tips ',
-          React.createElement('img', { className: 'both-caret', onClick: this.updateHeaders.bind(null, "tips-up") })
-        ),
-        date: React.createElement(
-          'th',
-          null,
-          'Date ',
-          React.createElement('img', { className: 'both-caret', onClick: this.updateHeaders.bind(null, "date-up") })
-        ),
-        sha1: React.createElement(
-          'th',
-          null,
-          'SHA1 ',
-          React.createElement('img', { className: 'both-caret', onClick: this.updateHeaders.bind(null, "sha1-up") })
-        )
-      });
-    } else if (param === 'title-down') {
-      this.sortPosts('title-down');
-      this.setState({
-        title: React.createElement(
-          'th',
-          null,
-          'Title ',
-          React.createElement('img', { className: 'down-caret', onClick: this.updateHeaders.bind(null, "title-up") })
-        ),
-        tips: React.createElement(
-          'th',
-          null,
-          'Tips ',
-          React.createElement('img', { className: 'both-caret', onClick: this.updateHeaders.bind(null, "tips-up") })
-        ),
-        date: React.createElement(
-          'th',
-          null,
-          'Date ',
-          React.createElement('img', { className: 'both-caret', onClick: this.updateHeaders.bind(null, "date-up") })
-        ),
-        sha1: React.createElement(
-          'th',
-          null,
-          'SHA1 ',
-          React.createElement('img', { className: 'both-caret', onClick: this.updateHeaders.bind(null, "sha1-up") })
-        )
-      });
-    } else if (param === 'tips-up') {
-      this.sortPosts('tips-up');
-      this.setState({
-        title: React.createElement(
-          'th',
-          null,
-          'Title ',
-          React.createElement('img', { className: 'both-caret', onClick: this.updateHeaders.bind(null, "title-up") })
-        ),
-        tips: React.createElement(
-          'th',
-          null,
-          'Tips ',
-          React.createElement('img', { className: 'up-caret', onClick: this.updateHeaders.bind(null, "tips-down") })
-        ),
-        date: React.createElement(
-          'th',
-          null,
-          'Date ',
-          React.createElement('img', { className: 'both-caret', onClick: this.updateHeaders.bind(null, "date-up") })
-        ),
-        sha1: React.createElement(
-          'th',
-          null,
-          'SHA1 ',
-          React.createElement('img', { className: 'both-caret', onClick: this.updateHeaders.bind(null, "sha1-up") })
-        )
-      });
-    } else if (param === 'tips-down') {
-      this.sortPosts('tips-down');
-      this.setState({
-        title: React.createElement(
-          'th',
-          null,
-          'Title ',
-          React.createElement('img', { className: 'both-caret', onClick: this.updateHeaders.bind(null, "title-up") })
-        ),
-        tips: React.createElement(
-          'th',
-          null,
-          'Tips ',
-          React.createElement('img', { className: 'down-caret', onClick: this.updateHeaders.bind(null, "tips-up") })
-        ),
-        date: React.createElement(
-          'th',
-          null,
-          'Date ',
-          React.createElement('img', { className: 'both-caret', onClick: this.updateHeaders.bind(null, "date-up") })
-        ),
-        sha1: React.createElement(
-          'th',
-          null,
-          'SHA1 ',
-          React.createElement('img', { className: 'both-caret', onClick: this.updateHeaders.bind(null, "sha1-up") })
-        )
-      });
-    } else if (param === 'date-up') {
-      this.sortPosts('date-up');
-      this.setState({
-        title: React.createElement(
-          'th',
-          null,
-          'Title ',
-          React.createElement('img', { className: 'both-caret', onClick: this.updateHeaders.bind(null, "title-up") })
-        ),
-        tips: React.createElement(
-          'th',
-          null,
-          'Tips ',
-          React.createElement('img', { className: 'both-caret', onClick: this.updateHeaders.bind(null, "tips-up") })
-        ),
-        date: React.createElement(
-          'th',
-          null,
-          'Date ',
-          React.createElement('img', { className: 'up-caret', onClick: this.updateHeaders.bind(null, "date-down") })
-        ),
-        sha1: React.createElement(
-          'th',
-          null,
-          'SHA1 ',
-          React.createElement('img', { className: 'both-caret', onClick: this.updateHeaders.bind(null, "sha1-up") })
-        )
-      });
-    } else if (param === 'date-down') {
-      this.sortPosts('date-down');
-      this.setState({
-        title: React.createElement(
-          'th',
-          null,
-          'Title ',
-          React.createElement('img', { className: 'both-caret', onClick: this.updateHeaders.bind(null, "title-up") })
-        ),
-        tips: React.createElement(
-          'th',
-          null,
-          'Tips ',
-          React.createElement('img', { className: 'both-caret', onClick: this.updateHeaders.bind(null, "tips-up") })
-        ),
-        date: React.createElement(
-          'th',
-          null,
-          'Date ',
-          React.createElement('img', { className: 'down-caret', onClick: this.updateHeaders.bind(null, "date-up") })
-        ),
-        sha1: React.createElement(
-          'th',
-          null,
-          'SHA1 ',
-          React.createElement('img', { className: 'both-caret', onClick: this.updateHeaders.bind(null, "sha1-up") })
-        )
-      });
-    } else if (param === 'sha1-up') {
-      this.sortPosts('sha1-up');
-      this.setState({
-        title: React.createElement(
-          'th',
-          null,
-          'Title ',
-          React.createElement('img', { className: 'both-caret', onClick: this.updateHeaders.bind(null, "title-up") })
-        ),
-        tips: React.createElement(
-          'th',
-          null,
-          'Tips ',
-          React.createElement('img', { className: 'both-caret', onClick: this.updateHeaders.bind(null, "tips-up") })
-        ),
-        date: React.createElement(
-          'th',
-          null,
-          'Date ',
-          React.createElement('img', { className: 'both-caret', onClick: this.updateHeaders.bind(null, "date-up") })
-        ),
-        sha1: React.createElement(
-          'th',
-          null,
-          'SHA1 ',
-          React.createElement('img', { className: 'up-caret', onClick: this.updateHeaders.bind(null, "sha1-down") })
-        )
-      });
-    } else if (param === 'sha1-down') {
-      this.sortPosts('sha1-down');
-      this.setState({
-        title: React.createElement(
-          'th',
-          null,
-          'Title ',
-          React.createElement('img', { className: 'both-caret', onClick: this.updateHeaders.bind(null, "title-up") })
-        ),
-        tips: React.createElement(
-          'th',
-          null,
-          'Tips ',
-          React.createElement('img', { className: 'both-caret', onClick: this.updateHeaders.bind(null, "tips-up") })
-        ),
-        date: React.createElement(
-          'th',
-          null,
-          'Date ',
-          React.createElement('img', { className: 'both-caret', onClick: this.updateHeaders.bind(null, "date-up") })
-        ),
-        sha1: React.createElement(
-          'th',
-          null,
-          'SHA1 ',
-          React.createElement('img', { className: 'down-caret', onClick: this.updateHeaders.bind(null, "sha1-up") })
-        )
-      });
-    }
   },
 
   sortPosts: function sortPosts(sort) {
@@ -536,49 +308,257 @@ var Assets = React.createClass({
     if (sort === 'title-up') {
       sortByTitle(posts, 'up', function (sortedPosts) {
         buildTable(sortedPosts, function (renderPosts) {
-          that.setState({ posts: renderPosts });
+          that.setState({
+            posts: renderPosts,
+            title: React.createElement(
+              'th',
+              null,
+              'Title ',
+              React.createElement('img', { className: 'up-caret', onClick: that.sortPosts.bind(null, "title-down") })
+            ),
+            tips: React.createElement(
+              'th',
+              null,
+              'Tips ',
+              React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "tips-up") })
+            ),
+            date: React.createElement(
+              'th',
+              null,
+              'Date ',
+              React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "date-up") })
+            ),
+            sha1: React.createElement(
+              'th',
+              null,
+              'SHA1 ',
+              React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "sha1-up") })
+            )
+          });
         });
       });
     } else if (sort === 'title-down') {
       sortByTitle(posts, 'down', function (sortedPosts) {
         buildTable(sortedPosts, function (renderPosts) {
-          that.setState({ posts: renderPosts });
+          that.setState({
+            posts: renderPosts,
+            title: React.createElement(
+              'th',
+              null,
+              'Title ',
+              React.createElement('img', { className: 'down-caret', onClick: that.sortPosts.bind(null, "title-up") })
+            ),
+            tips: React.createElement(
+              'th',
+              null,
+              'Tips ',
+              React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "tips-up") })
+            ),
+            date: React.createElement(
+              'th',
+              null,
+              'Date ',
+              React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "date-up") })
+            ),
+            sha1: React.createElement(
+              'th',
+              null,
+              'SHA1 ',
+              React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "sha1-up") })
+            )
+          });
         });
       });
     } else if (sort === 'tips-up') {
       sortByTips(posts, 'up', function (sortedPosts) {
         buildTable(sortedPosts, function (renderPosts) {
-          that.setState({ posts: renderPosts });
+          that.setState({
+            posts: renderPosts,
+            title: React.createElement(
+              'th',
+              null,
+              'Title ',
+              React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "title-up") })
+            ),
+            tips: React.createElement(
+              'th',
+              null,
+              'Tips ',
+              React.createElement('img', { className: 'up-caret', onClick: that.sortPosts.bind(null, "tips-down") })
+            ),
+            date: React.createElement(
+              'th',
+              null,
+              'Date ',
+              React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "date-up") })
+            ),
+            sha1: React.createElement(
+              'th',
+              null,
+              'SHA1 ',
+              React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "sha1-up") })
+            )
+          });
         });
       });
     } else if (sort === 'tips-down') {
       sortByTips(posts, 'down', function (sortedPosts) {
         buildTable(sortedPosts, function (renderPosts) {
-          that.setState({ posts: renderPosts });
+          that.setState({
+            posts: renderPosts,
+            title: React.createElement(
+              'th',
+              null,
+              'Title ',
+              React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "title-up") })
+            ),
+            tips: React.createElement(
+              'th',
+              null,
+              'Tips ',
+              React.createElement('img', { className: 'down-caret', onClick: that.sortPosts.bind(null, "tips-up") })
+            ),
+            date: React.createElement(
+              'th',
+              null,
+              'Date ',
+              React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "date-up") })
+            ),
+            sha1: React.createElement(
+              'th',
+              null,
+              'SHA1 ',
+              React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "sha1-up") })
+            )
+          });
         });
       });
     } else if (sort === 'date-up') {
       sortByDate(posts, 'up', function (sortedPosts) {
         buildTable(sortedPosts, function (renderPosts) {
-          that.setState({ posts: renderPosts });
+          that.setState({
+            posts: renderPosts,
+            title: React.createElement(
+              'th',
+              null,
+              'Title ',
+              React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "title-up") })
+            ),
+            tips: React.createElement(
+              'th',
+              null,
+              'Tips ',
+              React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "tips-up") })
+            ),
+            date: React.createElement(
+              'th',
+              null,
+              'Date ',
+              React.createElement('img', { className: 'up-caret', onClick: that.sortPosts.bind(null, "date-down") })
+            ),
+            sha1: React.createElement(
+              'th',
+              null,
+              'SHA1 ',
+              React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "sha1-up") })
+            )
+          });
         });
       });
     } else if (sort === 'date-down') {
       sortByDate(posts, 'down', function (sortedPosts) {
         buildTable(sortedPosts, function (renderPosts) {
-          that.setState({ posts: renderPosts });
+          that.setState({
+            posts: renderPosts,
+            title: React.createElement(
+              'th',
+              null,
+              'Title ',
+              React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "title-up") })
+            ),
+            tips: React.createElement(
+              'th',
+              null,
+              'Tips ',
+              React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "tips-up") })
+            ),
+            date: React.createElement(
+              'th',
+              null,
+              'Date ',
+              React.createElement('img', { className: 'down-caret', onClick: that.sortPosts.bind(null, "date-up") })
+            ),
+            sha1: React.createElement(
+              'th',
+              null,
+              'SHA1 ',
+              React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "sha1-up") })
+            )
+          });
         });
       });
     } else if (sort === 'sha1-up') {
       sortBySHA1(posts, 'up', function (sortedPosts) {
         buildTable(sortedPosts, function (renderPosts) {
-          that.setState({ posts: renderPosts });
+          that.setState({
+            posts: renderPosts,
+            title: React.createElement(
+              'th',
+              null,
+              'Title ',
+              React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "title-up") })
+            ),
+            tips: React.createElement(
+              'th',
+              null,
+              'Tips ',
+              React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "tips-up") })
+            ),
+            date: React.createElement(
+              'th',
+              null,
+              'Date ',
+              React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "date-up") })
+            ),
+            sha1: React.createElement(
+              'th',
+              null,
+              'SHA1 ',
+              React.createElement('img', { className: 'up-caret', onClick: that.sortPosts.bind(null, "sha1-down") })
+            )
+          });
         });
       });
     } else if (sort === 'sha1-down') {
       sortBySHA1(posts, 'down', function (sortedPosts) {
         buildTable(sortedPosts, function (renderPosts) {
-          that.setState({ posts: renderPosts });
+          that.setState({
+            posts: renderPosts,
+            title: React.createElement(
+              'th',
+              null,
+              'Title ',
+              React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "title-up") })
+            ),
+            tips: React.createElement(
+              'th',
+              null,
+              'Tips ',
+              React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "tips-up") })
+            ),
+            date: React.createElement(
+              'th',
+              null,
+              'Date ',
+              React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "date-up") })
+            ),
+            sha1: React.createElement(
+              'th',
+              null,
+              'SHA1 ',
+              React.createElement('img', { className: 'down-caret', onClick: that.sortPosts.bind(null, "sha1-up") })
+            )
+          });
         });
       });
     }
@@ -602,77 +582,59 @@ var Assets = React.createClass({
         ' ',
         React.createElement('br', null),
         React.createElement(
-          Panel,
-          null,
+          ButtonGroup,
+          { className: 'assets-buttons' },
           React.createElement(
-            'div',
-            { className: 'assetStats' },
+            Button,
+            null,
             React.createElement(
-              'p',
+              'center',
               null,
-              'Total Posts: ',
               React.createElement(
-                'b',
+                'p',
+                null,
+                'Total Posts'
+              ),
+              React.createElement(
+                'h1',
                 null,
                 this.state.numPosts
               )
-            ),
+            )
+          ),
+          React.createElement(
+            Button,
+            { active: true },
             React.createElement(
-              'p',
+              'center',
               null,
-              'Total Tips: ',
               React.createElement(
-                'b',
+                'p',
+                null,
+                'Total Tips'
+              ),
+              React.createElement(
+                'h1',
                 null,
                 this.state.numTips
               )
             )
           ),
           React.createElement(
-            'div',
-            { className: 'assetStats' },
+            Button,
+            null,
             React.createElement(
-              'p',
+              'center',
               null,
-              'Average Tips per Post: ',
               React.createElement(
-                'b',
+                'p',
                 null,
-                this.state.avgTips
-              )
-            ),
-            React.createElement(
-              'p',
-              null,
-              'Record Tips on a Post: ',
+                'Total Profit'
+              ),
               React.createElement(
-                'b',
+                'h1',
                 null,
-                this.state.maxTips
-              )
-            )
-          ),
-          React.createElement(
-            'div',
-            { className: 'assetStats' },
-            React.createElement(
-              'p',
-              null,
-              'Total Revenue: ',
-              React.createElement(
-                'b',
-                null,
-                (this.state.numTips * .00013).toFixed(5)
-              )
-            ),
-            React.createElement(
-              'p',
-              null,
-              'Total Bitstore Costs: ',
-              React.createElement(
-                'b',
-                null,
-                (this.state.numPosts * .000001 + .0001).toFixed(5)
+                this.state.numPosts
               )
             )
           )
@@ -686,6 +648,7 @@ var Assets = React.createClass({
             this.state.tipLine
           )
         ),
+        this.state.statistics,
         React.createElement(
           Table,
           { striped: true, hover: true, responsive: true },
