@@ -115,7 +115,48 @@ function buildGraph(posts, tips, sort, callback) {
   }
 }
 
-function postsStatistics(posts, tips, callback) {}
+function postsStatistics(posts, tips, callback) {
+  var today = new Date();
+  var sevenDays = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+  var thirtyDays = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30);
+  var ninetyDays = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 90);
+
+  var i = 0;
+  var sevenCount = 0;
+  var thirtyCount = 0;
+  var ninetyCount = 0;
+  var textCount = 0;
+  var imageCount = 0;
+  var audioCount = 0;
+  var otherCount = 0;
+
+  posts.forEach(function (post) {
+    var postDay = new Date(post.datetime);
+    var postType = post.type;
+    if (postDay > sevenDays) {
+      sevenCount += 1;
+    }
+    if (postDay > thirtyDays) {
+      thirtyCount += 1;
+    }
+    if (postDay > ninetyDays) {
+      ninetyCount += 1;
+    }
+    if (postType.substring(0, 4) === 'text') {
+      textCount += 1;
+    } else if (postType.substring(0, 5) === 'image') {
+      imageCount += 1;
+    } else if (postType.substring(0, 5) === 'audio') {
+      audioCount += 1;
+    } else {
+      otherCount += 1;
+    }
+    if (i === posts.length - 1) {
+      callback(sevenCount, thirtyCount, ninetyCount, textCount, imageCount, audioCount, otherCount);
+    }
+    i++;
+  });
+}
 
 function tipsStatistics(posts, tips, callback) {
   var avgTips = 0;
@@ -409,23 +450,27 @@ var Assets = React.createClass({
           ),
           React.createElement('hr', null),
           React.createElement(
-            'p',
-            null,
-            'Average Number of Tips per Post: ',
+            Col,
+            { md: 4, lg: 4, xl: 4 },
             React.createElement(
-              'b',
+              'p',
               null,
-              avgTips
-            )
-          ),
-          React.createElement(
-            'p',
-            null,
-            'Record Number of Tips on a Post: ',
+              'Average Number of Tips per Post: ',
+              React.createElement(
+                'b',
+                null,
+                avgTips
+              )
+            ),
             React.createElement(
-              'b',
+              'p',
               null,
-              maxTips
+              'Record Number of Tips on a Post: ',
+              React.createElement(
+                'b',
+                null,
+                maxTips
+              )
             )
           )
         );
@@ -443,79 +488,193 @@ var Assets = React.createClass({
     var that = this;
     if (sort === 'posts') {
       buildGraph(posts, null, 'posts', function (lineData) {
-        var statistics = React.createElement(
-          Panel,
-          null,
-          React.createElement(
-            ButtonGroup,
-            { className: 'assets-buttons' },
+        postsStatistics(posts, tips, function (sevenCount, thirtyCount, ninetyCount, textCount, imageCount, audioCount, otherCount) {
+          var statistics = React.createElement(
+            Panel,
+            null,
             React.createElement(
-              Button,
-              { onClick: that.sortStatistics.bind(null, 'posts'), active: true },
+              ButtonGroup,
+              { className: 'assets-buttons' },
+              React.createElement(
+                Button,
+                { onClick: that.sortStatistics.bind(null, 'posts'), active: true },
+                React.createElement(
+                  'center',
+                  null,
+                  React.createElement(
+                    'p',
+                    null,
+                    'Total Posts'
+                  ),
+                  React.createElement(
+                    'h1',
+                    null,
+                    numPosts
+                  )
+                )
+              ),
+              React.createElement(
+                Button,
+                { onClick: that.sortStatistics.bind(null, 'tips') },
+                React.createElement(
+                  'center',
+                  null,
+                  React.createElement(
+                    'p',
+                    null,
+                    'Total Tips'
+                  ),
+                  React.createElement(
+                    'h1',
+                    null,
+                    numTips
+                  )
+                )
+              ),
+              React.createElement(
+                Button,
+                { onClick: that.sortStatistics.bind(null, 'profit') },
+                React.createElement(
+                  'center',
+                  null,
+                  React.createElement(
+                    'p',
+                    null,
+                    'Total Profit'
+                  ),
+                  React.createElement(
+                    'h1',
+                    null,
+                    '~ ',
+                    numProfits,
+                    ' BTC'
+                  )
+                )
+              )
+            ),
+            React.createElement('hr', null),
+            React.createElement(
+              'center',
+              null,
+              React.createElement(LineChart, { data: lineData, options: { responsive: true }, height: '100' })
+            ),
+            React.createElement('hr', null),
+            React.createElement(
+              Col,
+              { md: 3, lg: 3, xl: 3 },
               React.createElement(
                 'center',
                 null,
                 React.createElement(
                   'p',
                   null,
-                  'Total Posts'
+                  '7-Day Post Count: ',
+                  React.createElement(
+                    'b',
+                    null,
+                    sevenCount
+                  )
                 ),
                 React.createElement(
-                  'h1',
+                  'p',
                   null,
-                  numPosts
+                  '30-Day Post Count: ',
+                  React.createElement(
+                    'b',
+                    null,
+                    thirtyCount
+                  )
                 )
               )
             ),
             React.createElement(
-              Button,
-              { onClick: that.sortStatistics.bind(null, 'tips') },
+              Col,
+              { md: 3, lg: 3, xl: 3 },
               React.createElement(
                 'center',
                 null,
                 React.createElement(
                   'p',
                   null,
-                  'Total Tips'
+                  '90-Day Post Count: ',
+                  React.createElement(
+                    'b',
+                    null,
+                    ninetyCount
+                  )
                 ),
                 React.createElement(
-                  'h1',
+                  'p',
                   null,
-                  numTips
+                  'All-Time Post Count: ',
+                  React.createElement(
+                    'b',
+                    null,
+                    numPosts
+                  )
                 )
               )
             ),
             React.createElement(
-              Button,
-              { onClick: that.sortStatistics.bind(null, 'profit') },
+              Col,
+              { md: 3, lg: 3, xl: 3 },
               React.createElement(
                 'center',
                 null,
                 React.createElement(
                   'p',
                   null,
-                  'Total Profit'
+                  'Text Posts: ',
+                  React.createElement(
+                    'b',
+                    null,
+                    textCount
+                  )
                 ),
                 React.createElement(
-                  'h1',
+                  'p',
                   null,
-                  '~ ',
-                  numProfits,
-                  ' BTC'
+                  'Image Posts: ',
+                  React.createElement(
+                    'b',
+                    null,
+                    imageCount
+                  )
+                )
+              )
+            ),
+            React.createElement(
+              Col,
+              { md: 3, lg: 3, xl: 3 },
+              React.createElement(
+                'center',
+                null,
+                React.createElement(
+                  'p',
+                  null,
+                  'Audio Posts: ',
+                  React.createElement(
+                    'b',
+                    null,
+                    audioCount
+                  )
+                ),
+                React.createElement(
+                  'p',
+                  null,
+                  'Other Posts: ',
+                  React.createElement(
+                    'b',
+                    null,
+                    otherCount
+                  )
                 )
               )
             )
-          ),
-          React.createElement('hr', null),
-          React.createElement(
-            'center',
-            null,
-            React.createElement(LineChart, { data: lineData, options: { responsive: true }, height: '100' })
-          ),
-          React.createElement('hr', null)
-        );
-        that.setState({
-          statistics: statistics
+          );
+          that.setState({
+            statistics: statistics
+          });
         });
       });
     } else if (sort === 'tips') {
@@ -592,23 +751,27 @@ var Assets = React.createClass({
             ),
             React.createElement('hr', null),
             React.createElement(
-              'p',
-              null,
-              'Average Number of Tips per Post: ',
+              Col,
+              { md: 4, lg: 4, xl: 4 },
               React.createElement(
-                'b',
+                'p',
                 null,
-                avgTips
-              )
-            ),
-            React.createElement(
-              'p',
-              null,
-              'Record Number of Tips on a Post: ',
+                'Average Number of Tips per Post: ',
+                React.createElement(
+                  'b',
+                  null,
+                  avgTips
+                )
+              ),
               React.createElement(
-                'b',
+                'p',
                 null,
-                maxTips
+                'Record Number of Tips on a Post: ',
+                React.createElement(
+                  'b',
+                  null,
+                  maxTips
+                )
               )
             )
           );
@@ -690,23 +853,27 @@ var Assets = React.createClass({
           ),
           React.createElement('hr', null),
           React.createElement(
-            'p',
-            null,
-            'Total Revenue: ',
+            Col,
+            { md: 4, lg: 4, xl: 4 },
             React.createElement(
-              'b',
+              'p',
               null,
-              (numTips * .00013).toFixed(5)
-            )
-          ),
-          React.createElement(
-            'p',
-            null,
-            'Total Bitstore Costs: ',
+              'Total Revenue: ',
+              React.createElement(
+                'b',
+                null,
+                (numTips * .00013).toFixed(5)
+              )
+            ),
             React.createElement(
-              'b',
+              'p',
               null,
-              (numPosts * .000001).toFixed(5)
+              'Total Bitstore Costs: ',
+              React.createElement(
+                'b',
+                null,
+                (numPosts * .000001).toFixed(5)
+              )
             )
           )
         );

@@ -122,7 +122,49 @@ function buildGraph(posts, tips, sort, callback) {
 }
 
 function postsStatistics(posts, tips, callback) {
+  var today = new Date();
+  var sevenDays = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+  var thirtyDays = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30);
+  var ninetyDays = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 90);
 
+  var i = 0;
+  var sevenCount = 0;
+  var thirtyCount = 0;
+  var ninetyCount = 0;
+  var textCount = 0;
+  var imageCount = 0;
+  var audioCount = 0;
+  var otherCount = 0;
+
+  posts.forEach(function (post) {
+    var postDay = new Date(post.datetime);
+    var postType = post.type;
+    if (postDay > sevenDays) {
+      sevenCount += 1;
+    }
+    if (postDay > thirtyDays) {
+      thirtyCount += 1;
+    }
+    if (postDay > ninetyDays) {
+      ninetyCount += 1;
+    }
+    if (postType.substring(0, 4) === 'text') {
+      textCount += 1;
+    }
+    else if (postType.substring(0, 5) === 'image') {
+      imageCount += 1;
+    }
+    else if (postType.substring(0, 5) === 'audio') {
+      audioCount += 1;
+    }
+    else {
+      otherCount += 1;
+    }
+    if (i === posts.length - 1) {
+      callback(sevenCount, thirtyCount, ninetyCount, textCount, imageCount, audioCount, otherCount);
+    }
+    i++;
+  });
 }
 
 function tipsStatistics(posts, tips, callback) {
@@ -327,8 +369,10 @@ var Assets = React.createClass({
               <LineChart data={lineData} options={{responsive: true}} height="100" />
             </center>
             <hr />
-            <p>Average Number of Tips per Post: <b>{avgTips}</b></p>
-            <p>Record Number of Tips on a Post: <b>{maxTips}</b></p>
+            <Col md={4} lg={4} xl={4}>
+              <p>Average Number of Tips per Post: <b>{avgTips}</b></p>
+              <p>Record Number of Tips on a Post: <b>{maxTips}</b></p>
+            </Col>
           </Panel>
         );
         callback(statistics);
@@ -345,37 +389,63 @@ var Assets = React.createClass({
     var that = this;
     if (sort === 'posts') {
       buildGraph(posts, null, 'posts', function (lineData) {
-        var statistics = (
-          <Panel>
-            <ButtonGroup className="assets-buttons">
-              <Button onClick={that.sortStatistics.bind(null, 'posts')} active>
+        postsStatistics(posts, tips, function (sevenCount, thirtyCount, ninetyCount, textCount, imageCount, audioCount, otherCount) {
+          var statistics = (
+            <Panel>
+              <ButtonGroup className="assets-buttons">
+                <Button onClick={that.sortStatistics.bind(null, 'posts')} active>
+                  <center>
+                    <p>Total Posts</p>
+                    <h1>{numPosts}</h1>
+                  </center>
+                </Button>
+                <Button onClick={that.sortStatistics.bind(null, 'tips')}>
+                  <center>
+                    <p>Total Tips</p>
+                    <h1>{numTips}</h1>
+                  </center>
+                </Button>
+                <Button onClick={that.sortStatistics.bind(null, 'profit')}>
+                  <center>
+                    <p>Total Profit</p>
+                    <h1>~ {numProfits} BTC</h1>
+                  </center>
+                </Button>
+              </ButtonGroup>
+              <hr />
+              <center>
+                <LineChart data={lineData} options={{responsive: true}} height="100" />
+              </center>
+              <hr />
+              <Col md={3} lg={3} xl={3}>
                 <center>
-                  <p>Total Posts</p>
-                  <h1>{numPosts}</h1>
+                  <p>7-Day Post Count: <b>{sevenCount}</b></p>
+                  <p>30-Day Post Count: <b>{thirtyCount}</b></p>
                 </center>
-              </Button>
-              <Button onClick={that.sortStatistics.bind(null, 'tips')}>
+              </Col>
+              <Col md={3} lg={3} xl={3}>
                 <center>
-                  <p>Total Tips</p>
-                  <h1>{numTips}</h1>
+                  <p>90-Day Post Count: <b>{ninetyCount}</b></p>
+                  <p>All-Time Post Count: <b>{numPosts}</b></p>
                 </center>
-              </Button>
-              <Button onClick={that.sortStatistics.bind(null, 'profit')}>
+              </Col>
+              <Col md={3} lg={3} xl={3}>
                 <center>
-                  <p>Total Profit</p>
-                  <h1>~ {numProfits} BTC</h1>
+                  <p>Text Posts: <b>{textCount}</b></p>
+                  <p>Image Posts: <b>{imageCount}</b></p>
                 </center>
-              </Button>
-            </ButtonGroup>
-            <hr />
-            <center>
-              <LineChart data={lineData} options={{responsive: true}} height="100" />
-            </center>
-            <hr />
-          </Panel>
-        );
-        that.setState({
-          statistics: statistics
+              </Col>
+              <Col md={3} lg={3} xl={3}>
+                <center>
+                  <p>Audio Posts: <b>{audioCount}</b></p>
+                  <p>Other Posts: <b>{otherCount}</b></p>
+                </center>
+              </Col>
+            </Panel>
+          );
+          that.setState({
+            statistics: statistics
+          });
         });
       });
     }
@@ -409,8 +479,10 @@ var Assets = React.createClass({
                 <LineChart data={lineData} options={{responsive: true}} height="100" />
               </center>
               <hr />
-              <p>Average Number of Tips per Post: <b>{avgTips}</b></p>
-              <p>Record Number of Tips on a Post: <b>{maxTips}</b></p>
+              <Col md={4} lg={4} xl={4}>
+                <p>Average Number of Tips per Post: <b>{avgTips}</b></p>
+                <p>Record Number of Tips on a Post: <b>{maxTips}</b></p>
+              </Col>
             </Panel>
           );
           that.setState({
@@ -448,8 +520,10 @@ var Assets = React.createClass({
               <LineChart data={lineData} options={{responsive: true}} height="100" />
             </center>
             <hr />
-            <p>Total Revenue: <b>{(numTips * .00013).toFixed(5)}</b></p>
-            <p>Total Bitstore Costs: <b>{(numPosts * .000001).toFixed(5)}</b></p>
+            <Col md={4} lg={4} xl={4}>
+              <p>Total Revenue: <b>{(numTips * .00013).toFixed(5)}</b></p>
+              <p>Total Bitstore Costs: <b>{(numPosts * .000001).toFixed(5)}</b></p>
+            </Col>
           </Panel>
         );
         that.setState({
