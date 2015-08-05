@@ -262,7 +262,9 @@ function sortByTitle(posts, sort, callback) {
       }));
     }
   }
-  callback([]);
+  else {
+    callback([]);
+  }
 }
 
 function sortByTips(posts, sort, callback) {

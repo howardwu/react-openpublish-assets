@@ -247,8 +247,9 @@ function sortByTitle(posts, sort, callback) {
         return titleA < titleB ? 1 : titleA > titleB ? -1 : 0;
       }));
     }
+  } else {
+    callback([]);
   }
-  callback([]);
 }
 
 function sortByTips(posts, sort, callback) {

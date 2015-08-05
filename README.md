@@ -13,7 +13,7 @@ Install react-openpublish-assets with the following command:
 
 ## Usage
 
-To use react-openpublish-assets, first require the module:
+To use react-openpublish-assets, require the module:
 ```javascript
   var Assets = require('react-openpublish-assets');
 ```
