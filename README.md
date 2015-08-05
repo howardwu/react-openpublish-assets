@@ -2,7 +2,7 @@
 
 A React component for querying and rendering OpenPublish assets.
 
-[Working demo](https://react-openpublish-assets.herokuapp.com)
+[Working demo](http://react-openpublish-assets.herokuapp.com)
 
 ## Install
 
@@ -17,4 +17,4 @@ To run the example:
 ```
   npm start
 ```
-and go to ```localhost:9000``` in your browser.
+and go to ```localhost:8000``` in your browser.
