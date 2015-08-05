@@ -16,115 +16,110 @@ var LineChart = require("react-chartjs").Line;
 
 function initialize(posts, tips, callback) {
   var tipsData = [];
-  for (var i = 0; i < posts.length; i++) {
-    var post = posts[i];
-    if (tips[post.sha1] != undefined && tips[post.sha1].length > 0) {
-      tips[post.sha1].forEach(function (tip) {
-        tipsData.push({
-          date: tip.datetime,
-          title: post.title
+  if (posts != undefined && posts.length > 0) {
+    var i = 0;
+    posts.forEach(function (post) {
+      if (tips[post.sha1] != undefined && tips[post.sha1].length > 0) {
+        tips[post.sha1].forEach(function (tip) {
+          tipsData.push({
+            date: tip.datetime,
+            title: post.title
+          });
         });
-      });
-    }
-    if (i === posts.length - 1) {
-      callback(posts, tipsData);
-    }
+      }
+      if (i === posts.length - 1) {
+        callback(posts, tipsData);
+      }
+      i++;
+    });
+  } else {
+    callback(posts, tipsData);
   }
 }
 
 function buildGraph(posts, tips, sort, callback) {
   var dateLine = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
   var labels = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  var lineData = {
+    labels: labels,
+    datasets: [{
+      label: "Tips",
+      fillColor: "rgba(151,187,205,0.2)",
+      strokeColor: "rgba(151,187,205,1)",
+      pointColor: "rgba(151,187,205,1)",
+      pointStrokeColor: "#fff",
+      pointHighlightFill: "#fff",
+      pointHighlightStroke: "rgba(151,187,205,1)",
+      data: dateLine
+    }]
+  };
   var thisYear = new Date().getUTCFullYear();
   if (sort === 'posts') {
-    var i = 0;
-    posts.forEach(function (post) {
-      var postYear = new Date(post.datetime).getUTCFullYear();
-      if (postYear === thisYear) {
-        var n = new Date(post.datetime).getUTCMonth();
-        dateLine[n] += 1;
-      }
-      if (i === posts.length - 1) {
-        var lineData = {
-          labels: labels,
-          datasets: [{
-            label: "Tips",
-            fillColor: "rgba(151,187,205,0.2)",
-            strokeColor: "rgba(151,187,205,1)",
-            pointColor: "rgba(151,187,205,1)",
-            pointStrokeColor: "#fff",
-            pointHighlightFill: "#fff",
-            pointHighlightStroke: "rgba(151,187,205,1)",
-            data: dateLine
-          }]
-        };
-        callback(lineData);
-      }
-      i++;
-    });
+    if (posts != undefined && posts.length > 0) {
+      var i = 0;
+      posts.forEach(function (post) {
+        var postYear = new Date(post.datetime).getUTCFullYear();
+        if (postYear === thisYear) {
+          var n = new Date(post.datetime).getUTCMonth();
+          dateLine[n] += 1;
+        }
+        if (i === posts.length - 1) {
+          callback(lineData);
+        }
+        i++;
+      });
+    } else {
+      callback(lineData);
+    }
   } else if (sort === 'tips') {
-    var counter = 0;
-    tips.forEach(function (tip) {
-      var tipYear = new Date(tip.date).getUTCFullYear();
-      if (tipYear === thisYear) {
-        var n = new Date(tip.date).getUTCMonth();
-        dateLine[n] += 1;
-      }
-      if (counter === tips.length - 1) {
-        var lineData = {
-          labels: labels,
-          datasets: [{
-            label: "Tips",
-            fillColor: "rgba(151,187,205,0.2)",
-            strokeColor: "rgba(151,187,205,1)",
-            pointColor: "rgba(151,187,205,1)",
-            pointStrokeColor: "#fff",
-            pointHighlightFill: "#fff",
-            pointHighlightStroke: "rgba(151,187,205,1)",
-            data: dateLine
-          }]
-        };
-        callback(lineData);
-      }
-      counter++;
-    });
+    if (tips != undefined && tips.length > 0) {
+      var counter = 0;
+      tips.forEach(function (tip) {
+        var tipYear = new Date(tip.date).getUTCFullYear();
+        if (tipYear === thisYear) {
+          var n = new Date(tip.date).getUTCMonth();
+          dateLine[n] += 1;
+        }
+        if (counter === tips.length - 1) {
+          callback(lineData);
+        }
+        counter++;
+      });
+    } else {
+      callback(lineData);
+    }
   } else if (sort === 'profit') {
-    var i = 0;
-    tips.forEach(function (tip) {
-      var tipYear = new Date(tip.date).getUTCFullYear();
-      if (tipYear === thisYear) {
-        var n = new Date(tip.date).getUTCMonth();
-        dateLine[n] += 0.00013;
-      }
-      if (i === tips.length - 1) {
-        var j = 0;
-        posts.forEach(function (post) {
-          var postYear = new Date(post.datetime).getUTCFullYear();
-          if (postYear === thisYear) {
-            var n2 = new Date(post.datetime).getUTCMonth();
-            dateLine[n2] -= 0.000001;
-          }
-          if (j === posts.length - 1) {
-            var lineData = {
-              labels: labels,
-              datasets: [{
-                label: "Tips",
-                fillColor: "rgba(151,187,205,0.2)",
-                strokeColor: "rgba(151,187,205,1)",
-                pointColor: "rgba(151,187,205,1)",
-                pointStrokeColor: "#fff",
-                pointHighlightFill: "#fff",
-                pointHighlightStroke: "rgba(151,187,205,1)",
-                data: dateLine
-              }]
-            };
+    if (tips != undefined && tips.length > 0) {
+      var i = 0;
+      tips.forEach(function (tip) {
+        var tipYear = new Date(tip.date).getUTCFullYear();
+        if (tipYear === thisYear) {
+          var n = new Date(tip.date).getUTCMonth();
+          dateLine[n] += 0.00013;
+        }
+        if (i === tips.length - 1) {
+          if (posts != undefined && posts.length > 0) {
+            var j = 0;
+            posts.forEach(function (post) {
+              var postYear = new Date(post.datetime).getUTCFullYear();
+              if (postYear === thisYear) {
+                var n2 = new Date(post.datetime).getUTCMonth();
+                dateLine[n2] -= 0.000001;
+              }
+              if (j === posts.length - 1) {
+                callback(lineData);
+              }
+              j++;
+            });
+          } else {
             callback(lineData);
           }
-          j++;
-        });
-      }
-      i++;
-    });
+        }
+        i++;
+      });
+    } else {
+      callback(lineData);
+    }
   }
 }
 
@@ -134,7 +129,6 @@ function postsStatistics(posts, tips, callback) {
   var thirtyDays = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30);
   var ninetyDays = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 90);
 
-  var i = 0;
   var sevenCount = 0;
   var thirtyCount = 0;
   var ninetyCount = 0;
@@ -143,75 +137,89 @@ function postsStatistics(posts, tips, callback) {
   var audioCount = 0;
   var otherCount = 0;
 
-  posts.forEach(function (post) {
-    var postDay = new Date(post.datetime);
-    var postType = post.type;
-    if (postDay > sevenDays) {
-      sevenCount += 1;
-    }
-    if (postDay > thirtyDays) {
-      thirtyCount += 1;
-    }
-    if (postDay > ninetyDays) {
-      ninetyCount += 1;
-    }
-    if (postType.substring(0, 4) === 'text') {
-      textCount += 1;
-    } else if (postType.substring(0, 5) === 'image') {
-      imageCount += 1;
-    } else if (postType.substring(0, 5) === 'audio') {
-      audioCount += 1;
-    } else {
-      otherCount += 1;
-    }
-    if (i === posts.length - 1) {
-      callback(sevenCount, thirtyCount, ninetyCount, textCount, imageCount, audioCount, otherCount);
-    }
-    i++;
-  });
+  if (posts != undefined && posts.length > 0) {
+    var i = 0;
+    posts.forEach(function (post) {
+      var postDay = new Date(post.datetime);
+      var postType = post.type;
+      if (postDay > sevenDays) {
+        sevenCount += 1;
+      }
+      if (postDay > thirtyDays) {
+        thirtyCount += 1;
+      }
+      if (postDay > ninetyDays) {
+        ninetyCount += 1;
+      }
+      if (postType.substring(0, 4) === 'text') {
+        textCount += 1;
+      } else if (postType.substring(0, 5) === 'image') {
+        imageCount += 1;
+      } else if (postType.substring(0, 5) === 'audio') {
+        audioCount += 1;
+      } else {
+        otherCount += 1;
+      }
+      if (i === posts.length - 1) {
+        callback(sevenCount, thirtyCount, ninetyCount, textCount, imageCount, audioCount, otherCount);
+      }
+      i++;
+    });
+  } else {
+    callback(sevenCount, thirtyCount, ninetyCount, textCount, imageCount, audioCount, otherCount);
+  }
 }
 
 function tipsStatistics(posts, tips, callback) {
   var avgTips = 0;
   var maxTips = 0;
-  var i = 0;
-  posts.forEach(function (post) {
-    if (post.tips > maxTips) {
-      maxTips = post.tips;
-    }
-    if (i === posts.length - 1) {
-      var avgTips = 0;
-      if (posts.length > 0) {
-        avgTips = tips.length / posts.length;
+  var sevenCount = 0;
+  var thirtyCount = 0;
+  var ninetyCount = 0;
+  var allCount = tips.length;
+
+  if (posts != undefined && posts.length > 0) {
+    var i = 0;
+    posts.forEach(function (post) {
+      if (post.tips > maxTips) {
+        maxTips = post.tips;
       }
-      var j = 0;
-      var sevenCount = 0;
-      var thirtyCount = 0;
-      var ninetyCount = 0;
-      var allCount = tips.length;
-      var today = new Date();
-      var sevenDays = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-      var thirtyDays = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30);
-      var ninetyDays = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 90);
-      tips.forEach(function (tip) {
-        var tipDay = new Date(tip.date);
-        if (tipDay > sevenDays) {
-          sevenCount += 1;
+      if (i === posts.length - 1) {
+        var avgTips = 0;
+        if (posts.length > 0) {
+          avgTips = tips.length / posts.length;
         }
-        if (tipDay > thirtyDays) {
-          thirtyCount += 1;
-        }
-        if (tipDay > ninetyDays) {
-          ninetyCount += 1;
-        }
-        if (j === tips.length - 1) {
+        var today = new Date();
+        var sevenDays = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+        var thirtyDays = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30);
+        var ninetyDays = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 90);
+        if (tips != undefined && tips.length > 0) {
+          var j = 0;
+          tips.forEach(function (tip) {
+            var tipDay = new Date(tip.date);
+            if (tipDay > sevenDays) {
+              sevenCount += 1;
+            }
+            if (tipDay > thirtyDays) {
+              thirtyCount += 1;
+            }
+            if (tipDay > ninetyDays) {
+              ninetyCount += 1;
+            }
+            if (j === tips.length - 1) {
+              callback(avgTips, maxTips, sevenCount, thirtyCount, ninetyCount, allCount);
+            }
+            j++;
+          });
+        } else {
           callback(avgTips, maxTips, sevenCount, thirtyCount, ninetyCount, allCount);
         }
-        j++;
-      });
-    }
-    i++;
-  });
+      }
+      i++;
+    });
+  } else {
+    callback(avgTips, maxTips, sevenCount, thirtyCount, ninetyCount, allCount);
+  }
 }
 
 function profitsStatistics(posts, tips, callback) {
@@ -302,56 +310,60 @@ function sortBySHA1(posts, sort, callback) {
 }
 
 function buildTable(sortedPosts, callback) {
-  var i = 0;
   var renderPosts = [];
-  sortedPosts.forEach(function (post) {
-    renderPosts.push(React.createElement(
-      'tr',
-      { key: i },
-      React.createElement(
-        'td',
-        null,
+  if (sortedPosts != undefined && sortedPosts.length > 0) {
+    var i = 0;
+    sortedPosts.forEach(function (post) {
+      renderPosts.push(React.createElement(
+        'tr',
+        { key: i },
         React.createElement(
-          'a',
-          { href: "/permalink?sha1=" + post.sha1 },
-          post.title
-        )
-      ),
-      React.createElement(
-        'td',
-        null,
-        post.tips
-      ),
-      React.createElement(
-        'td',
-        null,
-        new Date(post.datetime).toLocaleString()
-      ),
-      React.createElement(
-        'td',
-        null,
+          'td',
+          null,
+          React.createElement(
+            'a',
+            { href: "/permalink?sha1=" + post.sha1 },
+            post.title
+          )
+        ),
         React.createElement(
-          'a',
-          { href: "/permalink?sha1=" + post.sha1 },
-          post.sha1,
-          ' '
-        )
-      ),
-      React.createElement(
-        'td',
-        null,
+          'td',
+          null,
+          post.tips
+        ),
         React.createElement(
-          'a',
-          { href: "https://bitstore-test.blockai.com/" + post.owner + "/sha1/" + post.sha1 },
-          'View Content'
+          'td',
+          null,
+          new Date(post.datetime).toLocaleString()
+        ),
+        React.createElement(
+          'td',
+          null,
+          React.createElement(
+            'a',
+            { href: "/permalink?sha1=" + post.sha1 },
+            post.sha1,
+            ' '
+          )
+        ),
+        React.createElement(
+          'td',
+          null,
+          React.createElement(
+            'a',
+            { href: "https://bitstore-test.blockai.com/" + post.owner + "/sha1/" + post.sha1 },
+            'View Content'
+          )
         )
-      )
-    ));
-    if (i === sortedPosts.length - 1) {
-      callback(renderPosts);
-    }
-    i++;
-  });
+      ));
+      if (i === sortedPosts.length - 1) {
+        callback(renderPosts);
+      }
+      i++;
+    });
+  } else {
+    callback(renderPosts);
+  }
 }
 
 var Assets = React.createClass({
@@ -417,7 +429,10 @@ var Assets = React.createClass({
   renderStatistics: function renderStatistics(sort) {
     var numPosts = this.state.rawPosts.length;
     var numTips = this.state.rawTips.length;
-    var numProfits = (numTips * .00013 - (numPosts * .000001 + .0001)).toFixed(5);
+    var numProfits = 0.0;
+    if (numPosts > 0 || numTips > 0) {
+      numProfits = (numTips * .00013 - (numPosts * .000001 + .0001)).toFixed(5);
+    }
     var posts = this.state.rawPosts;
     var tips = this.state.rawTips;
     var that = this;
