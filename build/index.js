@@ -322,7 +322,7 @@ function buildTable(sortedPosts, callback) {
           null,
           React.createElement(
             'a',
-            { href: "/permalink?sha1=" + post.sha1 },
+            { href: "http://coinvote-testnet.herokuapp.com/permalink?sha1=" + post.sha1 },
             post.title
           )
         ),
@@ -341,7 +341,7 @@ function buildTable(sortedPosts, callback) {
           null,
           React.createElement(
             'a',
-            { href: "/permalink?sha1=" + post.sha1 },
+            { href: "http://coinvote-testnet.herokuapp.com/permalink?sha1=" + post.sha1 },
             post.sha1,
             ' '
           )

@@ -336,10 +336,10 @@ function buildTable(sortedPosts, callback) {
     sortedPosts.forEach(function (post) {
       renderPosts.push(
         <tr key={i}>
-          <td><a href={"/permalink?sha1=" + post.sha1}>{post.title}</a></td>
+          <td><a href={"http://coinvote-testnet.herokuapp.com/permalink?sha1=" + post.sha1}>{post.title}</a></td>
           <td>{post.tips}</td>
           <td>{new Date(post.datetime).toLocaleString()}</td>
-          <td><a href={"/permalink?sha1=" + post.sha1}>{post.sha1} </a></td>
+          <td><a href={"http://coinvote-testnet.herokuapp.com/permalink?sha1=" + post.sha1}>{post.sha1} </a></td>
           <td><a href={"https://bitstore-test.blockai.com/" + post.owner + "/sha1/" + post.sha1}>View Content</a></td>
         </tr>
       );
