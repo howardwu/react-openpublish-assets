@@ -1,17 +1,11 @@
 /* Assets */
-.assetStats {
-  float: left;
-  margin-left: 3%;
-  width: 30%;
-  font-size: 18px;
-}
-
 .assets-buttons {
-  width: 100%;;
+  width: 100%;
 }
 
 .assets-buttons .btn {
   width: 33.34%;
+  height: 150px;
 }
 
 /* Carets */

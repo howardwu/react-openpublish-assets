@@ -425,7 +425,7 @@ var Assets = React.createClass({
       buildGraph(posts, null, 'posts', function (lineData) {
         postsStatistics(posts, tips, function (sevenCount, thirtyCount, ninetyCount, textCount, imageCount, audioCount, otherCount) {
           var statistics = React.createElement(
-            Panel,
+            'div',
             null,
             React.createElement(
               ButtonGroup,
@@ -495,117 +495,122 @@ var Assets = React.createClass({
             ),
             React.createElement('hr', null),
             React.createElement(
-              Col,
-              { md: 3, lg: 3, xl: 3 },
+              Row,
+              null,
               React.createElement(
-                'center',
-                null,
+                Col,
+                { md: 3, lg: 3, xl: 3 },
                 React.createElement(
-                  'p',
+                  'center',
                   null,
-                  '7-Day Post Count: ',
                   React.createElement(
-                    'b',
+                    'p',
                     null,
-                    sevenCount
+                    '7-Day Post Count: ',
+                    React.createElement(
+                      'b',
+                      null,
+                      sevenCount
+                    )
+                  ),
+                  React.createElement(
+                    'p',
+                    null,
+                    '30-Day Post Count: ',
+                    React.createElement(
+                      'b',
+                      null,
+                      thirtyCount
+                    )
                   )
-                ),
+                )
+              ),
+              React.createElement(
+                Col,
+                { md: 3, lg: 3, xl: 3 },
                 React.createElement(
-                  'p',
+                  'center',
                   null,
-                  '30-Day Post Count: ',
                   React.createElement(
-                    'b',
+                    'p',
                     null,
-                    thirtyCount
+                    '90-Day Post Count: ',
+                    React.createElement(
+                      'b',
+                      null,
+                      ninetyCount
+                    )
+                  ),
+                  React.createElement(
+                    'p',
+                    null,
+                    'All-Time Post Count: ',
+                    React.createElement(
+                      'b',
+                      null,
+                      numPosts
+                    )
+                  )
+                )
+              ),
+              React.createElement(
+                Col,
+                { md: 3, lg: 3, xl: 3 },
+                React.createElement(
+                  'center',
+                  null,
+                  React.createElement(
+                    'p',
+                    null,
+                    'Text Posts: ',
+                    React.createElement(
+                      'b',
+                      null,
+                      textCount
+                    )
+                  ),
+                  React.createElement(
+                    'p',
+                    null,
+                    'Image Posts: ',
+                    React.createElement(
+                      'b',
+                      null,
+                      imageCount
+                    )
+                  )
+                )
+              ),
+              React.createElement(
+                Col,
+                { md: 3, lg: 3, xl: 3 },
+                React.createElement(
+                  'center',
+                  null,
+                  React.createElement(
+                    'p',
+                    null,
+                    'Audio Posts: ',
+                    React.createElement(
+                      'b',
+                      null,
+                      audioCount
+                    )
+                  ),
+                  React.createElement(
+                    'p',
+                    null,
+                    'Other Posts: ',
+                    React.createElement(
+                      'b',
+                      null,
+                      otherCount
+                    )
                   )
                 )
               )
             ),
-            React.createElement(
-              Col,
-              { md: 3, lg: 3, xl: 3 },
-              React.createElement(
-                'center',
-                null,
-                React.createElement(
-                  'p',
-                  null,
-                  '90-Day Post Count: ',
-                  React.createElement(
-                    'b',
-                    null,
-                    ninetyCount
-                  )
-                ),
-                React.createElement(
-                  'p',
-                  null,
-                  'All-Time Post Count: ',
-                  React.createElement(
-                    'b',
-                    null,
-                    numPosts
-                  )
-                )
-              )
-            ),
-            React.createElement(
-              Col,
-              { md: 3, lg: 3, xl: 3 },
-              React.createElement(
-                'center',
-                null,
-                React.createElement(
-                  'p',
-                  null,
-                  'Text Posts: ',
-                  React.createElement(
-                    'b',
-                    null,
-                    textCount
-                  )
-                ),
-                React.createElement(
-                  'p',
-                  null,
-                  'Image Posts: ',
-                  React.createElement(
-                    'b',
-                    null,
-                    imageCount
-                  )
-                )
-              )
-            ),
-            React.createElement(
-              Col,
-              { md: 3, lg: 3, xl: 3 },
-              React.createElement(
-                'center',
-                null,
-                React.createElement(
-                  'p',
-                  null,
-                  'Audio Posts: ',
-                  React.createElement(
-                    'b',
-                    null,
-                    audioCount
-                  )
-                ),
-                React.createElement(
-                  'p',
-                  null,
-                  'Other Posts: ',
-                  React.createElement(
-                    'b',
-                    null,
-                    otherCount
-                  )
-                )
-              )
-            )
+            React.createElement('hr', null)
           );
           that.setState({
             statistics: statistics
@@ -616,7 +621,7 @@ var Assets = React.createClass({
       buildGraph(null, tips, 'tips', function (lineData) {
         tipsStatistics(posts, tips, function (avgTips, maxTips, sevenCount, thirtyCount, ninetyCount, allCount) {
           var statistics = React.createElement(
-            Panel,
+            'div',
             null,
             React.createElement(
               ButtonGroup,
@@ -625,17 +630,21 @@ var Assets = React.createClass({
                 Button,
                 { onClick: that.renderStatistics.bind(null, 'posts') },
                 React.createElement(
-                  'center',
-                  null,
+                  'div',
+                  { className: 'word-wrap' },
                   React.createElement(
-                    'p',
+                    'center',
                     null,
-                    'Total Posts'
-                  ),
-                  React.createElement(
-                    'h1',
-                    null,
-                    numPosts
+                    React.createElement(
+                      'p',
+                      null,
+                      'Total Posts'
+                    ),
+                    React.createElement(
+                      'h1',
+                      null,
+                      numPosts
+                    )
                   )
                 )
               ),
@@ -643,17 +652,21 @@ var Assets = React.createClass({
                 Button,
                 { onClick: that.renderStatistics.bind(null, 'tips'), active: true },
                 React.createElement(
-                  'center',
-                  null,
+                  'div',
+                  { className: 'word-wrap' },
                   React.createElement(
-                    'p',
+                    'center',
                     null,
-                    'Total Tips'
-                  ),
-                  React.createElement(
-                    'h1',
-                    null,
-                    numTips
+                    React.createElement(
+                      'p',
+                      null,
+                      'Total Tips'
+                    ),
+                    React.createElement(
+                      'h1',
+                      null,
+                      numTips
+                    )
                   )
                 )
               ),
@@ -661,19 +674,23 @@ var Assets = React.createClass({
                 Button,
                 { onClick: that.renderStatistics.bind(null, 'profit') },
                 React.createElement(
-                  'center',
-                  null,
+                  'div',
+                  { className: 'word-wrap' },
                   React.createElement(
-                    'p',
+                    'center',
                     null,
-                    'Total Profit'
-                  ),
-                  React.createElement(
-                    'h1',
-                    null,
-                    '~ ',
-                    numProfits,
-                    ' BTC'
+                    React.createElement(
+                      'p',
+                      null,
+                      'Total Profit'
+                    ),
+                    React.createElement(
+                      'h1',
+                      null,
+                      '~ ',
+                      numProfits,
+                      ' BTC'
+                    )
                   )
                 )
               )
@@ -686,89 +703,94 @@ var Assets = React.createClass({
             ),
             React.createElement('hr', null),
             React.createElement(
-              Col,
-              { md: 4, lg: 4, xl: 4 },
+              Row,
+              null,
               React.createElement(
-                'center',
-                null,
+                Col,
+                { md: 4, lg: 4, xl: 4 },
                 React.createElement(
-                  'p',
+                  'center',
                   null,
-                  '7-Day Tip Count: ',
                   React.createElement(
-                    'b',
+                    'p',
                     null,
-                    sevenCount
+                    '7-Day Tip Count: ',
+                    React.createElement(
+                      'b',
+                      null,
+                      sevenCount
+                    )
+                  ),
+                  React.createElement(
+                    'p',
+                    null,
+                    '30-Day Tip Count: ',
+                    React.createElement(
+                      'b',
+                      null,
+                      thirtyCount
+                    )
                   )
-                ),
+                )
+              ),
+              React.createElement(
+                Col,
+                { md: 4, lg: 4, xl: 4 },
                 React.createElement(
-                  'p',
+                  'center',
                   null,
-                  '30-Day Tip Count: ',
                   React.createElement(
-                    'b',
+                    'p',
                     null,
-                    thirtyCount
+                    '7-Day Tip Count: ',
+                    React.createElement(
+                      'b',
+                      null,
+                      ninetyCount
+                    )
+                  ),
+                  React.createElement(
+                    'p',
+                    null,
+                    '30-Day Tip Count: ',
+                    React.createElement(
+                      'b',
+                      null,
+                      allCount
+                    )
+                  )
+                )
+              ),
+              React.createElement(
+                Col,
+                { md: 4, lg: 4, xl: 4 },
+                React.createElement(
+                  'center',
+                  null,
+                  React.createElement(
+                    'p',
+                    null,
+                    'Average Number of Tips per Post: ',
+                    React.createElement(
+                      'b',
+                      null,
+                      avgTips
+                    )
+                  ),
+                  React.createElement(
+                    'p',
+                    null,
+                    'Record Number of Tips on a Post: ',
+                    React.createElement(
+                      'b',
+                      null,
+                      maxTips
+                    )
                   )
                 )
               )
             ),
-            React.createElement(
-              Col,
-              { md: 4, lg: 4, xl: 4 },
-              React.createElement(
-                'center',
-                null,
-                React.createElement(
-                  'p',
-                  null,
-                  '7-Day Tip Count: ',
-                  React.createElement(
-                    'b',
-                    null,
-                    ninetyCount
-                  )
-                ),
-                React.createElement(
-                  'p',
-                  null,
-                  '30-Day Tip Count: ',
-                  React.createElement(
-                    'b',
-                    null,
-                    allCount
-                  )
-                )
-              )
-            ),
-            React.createElement(
-              Col,
-              { md: 4, lg: 4, xl: 4 },
-              React.createElement(
-                'center',
-                null,
-                React.createElement(
-                  'p',
-                  null,
-                  'Average Number of Tips per Post: ',
-                  React.createElement(
-                    'b',
-                    null,
-                    avgTips
-                  )
-                ),
-                React.createElement(
-                  'p',
-                  null,
-                  'Record Number of Tips on a Post: ',
-                  React.createElement(
-                    'b',
-                    null,
-                    maxTips
-                  )
-                )
-              )
-            )
+            React.createElement('hr', null)
           );
           that.setState({
             statistics: statistics
@@ -779,7 +801,7 @@ var Assets = React.createClass({
       buildGraph(posts, tips, 'profit', function (lineData) {
         profitsStatistics(posts, tips, function (revenues, costs) {
           var statistics = React.createElement(
-            Panel,
+            'div',
             null,
             React.createElement(
               ButtonGroup,
@@ -849,33 +871,38 @@ var Assets = React.createClass({
             ),
             React.createElement('hr', null),
             React.createElement(
-              Col,
-              { md: 3, lg: 3, xl: 3 },
+              Row,
+              null,
               React.createElement(
-                'center',
-                null,
+                Col,
+                { md: 3, lg: 3, xl: 3 },
                 React.createElement(
-                  'p',
+                  'center',
                   null,
-                  'Total Revenue: ',
                   React.createElement(
-                    'b',
+                    'p',
                     null,
-                    revenues
-                  )
-                ),
-                React.createElement(
-                  'p',
-                  null,
-                  'Total Bitstore Costs: ',
+                    'Total Revenue: ',
+                    React.createElement(
+                      'b',
+                      null,
+                      revenues
+                    )
+                  ),
                   React.createElement(
-                    'b',
+                    'p',
                     null,
-                    costs
+                    'Total Bitstore Costs: ',
+                    React.createElement(
+                      'b',
+                      null,
+                      costs
+                    )
                   )
                 )
               )
-            )
+            ),
+            React.createElement('hr', null)
           );
           that.setState({
             statistics: statistics
@@ -1161,17 +1188,13 @@ var Assets = React.createClass({
       { className: 'container' },
       React.createElement(
         Panel,
-        null,
-        React.createElement(
-          'b',
-          { style: { fontSize: "25px" } },
-          ' ',
-          this.props.address + "\'s Assets",
-          ' '
-        ),
-        React.createElement('br', null),
-        ' ',
-        React.createElement('br', null),
+        { header: React.createElement(
+            'b',
+            { style: { fontSize: "25px" } },
+            ' ',
+            this.props.address + "\'s Assets",
+            ' '
+          ) },
         this.state.statistics,
         React.createElement(
           Table,

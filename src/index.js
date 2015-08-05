@@ -386,7 +386,7 @@ var Assets = React.createClass({
       buildGraph(posts, null, 'posts', function (lineData) {
         postsStatistics(posts, tips, function (sevenCount, thirtyCount, ninetyCount, textCount, imageCount, audioCount, otherCount) {
           var statistics = (
-            <Panel>
+            <div>
               <ButtonGroup className="assets-buttons">
                 <Button onClick={that.renderStatistics.bind(null, 'posts')} active>
                   <center>
@@ -412,31 +412,34 @@ var Assets = React.createClass({
                 <LineChart data={lineData} options={{responsive: true}} height="100" />
               </center>
               <hr />
-              <Col md={3} lg={3} xl={3}>
-                <center>
-                  <p>7-Day Post Count: <b>{sevenCount}</b></p>
-                  <p>30-Day Post Count: <b>{thirtyCount}</b></p>
-                </center>
-              </Col>
-              <Col md={3} lg={3} xl={3}>
-                <center>
-                  <p>90-Day Post Count: <b>{ninetyCount}</b></p>
-                  <p>All-Time Post Count: <b>{numPosts}</b></p>
-                </center>
-              </Col>
-              <Col md={3} lg={3} xl={3}>
-                <center>
-                  <p>Text Posts: <b>{textCount}</b></p>
-                  <p>Image Posts: <b>{imageCount}</b></p>
-                </center>
-              </Col>
-              <Col md={3} lg={3} xl={3}>
-                <center>
-                  <p>Audio Posts: <b>{audioCount}</b></p>
-                  <p>Other Posts: <b>{otherCount}</b></p>
-                </center>
-              </Col>
-            </Panel>
+              <Row>
+                <Col md={3} lg={3} xl={3}>
+                  <center>
+                    <p>7-Day Post Count: <b>{sevenCount}</b></p>
+                    <p>30-Day Post Count: <b>{thirtyCount}</b></p>
+                  </center>
+                </Col>
+                <Col md={3} lg={3} xl={3}>
+                  <center>
+                    <p>90-Day Post Count: <b>{ninetyCount}</b></p>
+                    <p>All-Time Post Count: <b>{numPosts}</b></p>
+                  </center>
+                </Col>
+                <Col md={3} lg={3} xl={3}>
+                  <center>
+                    <p>Text Posts: <b>{textCount}</b></p>
+                    <p>Image Posts: <b>{imageCount}</b></p>
+                  </center>
+                </Col>
+                <Col md={3} lg={3} xl={3}>
+                  <center>
+                    <p>Audio Posts: <b>{audioCount}</b></p>
+                    <p>Other Posts: <b>{otherCount}</b></p>
+                  </center>
+                </Col>
+              </Row>
+              <hr />
+            </div>
           );
           that.setState({
             statistics: statistics
@@ -448,25 +451,31 @@ var Assets = React.createClass({
       buildGraph(null, tips, 'tips', function (lineData) {
         tipsStatistics(posts, tips, function (avgTips, maxTips, sevenCount, thirtyCount, ninetyCount, allCount) {
           var statistics = (
-            <Panel>
+            <div>
               <ButtonGroup className="assets-buttons">
                 <Button onClick={that.renderStatistics.bind(null, 'posts')}>
-                  <center>
-                    <p>Total Posts</p>
-                    <h1>{numPosts}</h1>
-                  </center>
+                  <div className="word-wrap">
+                    <center>
+                      <p>Total Posts</p>
+                      <h1>{numPosts}</h1>
+                    </center>
+                  </div>
                 </Button>
                 <Button onClick={that.renderStatistics.bind(null, 'tips')} active>
-                  <center>
-                    <p>Total Tips</p>
-                    <h1>{numTips}</h1>
-                  </center>
+                  <div className="word-wrap">
+                    <center>
+                      <p>Total Tips</p>
+                      <h1>{numTips}</h1>
+                    </center>
+                  </div>
                 </Button>
                 <Button onClick={that.renderStatistics.bind(null, 'profit')}>
-                  <center>
-                    <p>Total Profit</p>
-                    <h1>~ {numProfits} BTC</h1>
-                  </center>
+                  <div className="word-wrap">
+                    <center>
+                      <p>Total Profit</p>
+                      <h1>~ {numProfits} BTC</h1>
+                    </center>
+                  </div>
                 </Button>
               </ButtonGroup>
               <hr />
@@ -474,25 +483,28 @@ var Assets = React.createClass({
                 <LineChart data={lineData} options={{responsive: true}} height="100" />
               </center>
               <hr />
-              <Col md={4} lg={4} xl={4}>
-                <center>
-                  <p>7-Day Tip Count: <b>{sevenCount}</b></p>
-                  <p>30-Day Tip Count: <b>{thirtyCount}</b></p>
-                </center>
-              </Col>
-              <Col md={4} lg={4} xl={4}>
-                <center>
-                  <p>7-Day Tip Count: <b>{ninetyCount}</b></p>
-                  <p>30-Day Tip Count: <b>{allCount}</b></p>
-                </center>
-              </Col>
-              <Col md={4} lg={4} xl={4}>
-                <center>
-                  <p>Average Number of Tips per Post: <b>{avgTips}</b></p>
-                  <p>Record Number of Tips on a Post: <b>{maxTips}</b></p>
-                </center>
-              </Col>
-            </Panel>
+              <Row>
+                <Col md={4} lg={4} xl={4}>
+                  <center>
+                    <p>7-Day Tip Count: <b>{sevenCount}</b></p>
+                    <p>30-Day Tip Count: <b>{thirtyCount}</b></p>
+                  </center>
+                </Col>
+                <Col md={4} lg={4} xl={4}>
+                  <center>
+                    <p>7-Day Tip Count: <b>{ninetyCount}</b></p>
+                    <p>30-Day Tip Count: <b>{allCount}</b></p>
+                  </center>
+                </Col>
+                <Col md={4} lg={4} xl={4}>
+                  <center>
+                    <p>Average Number of Tips per Post: <b>{avgTips}</b></p>
+                    <p>Record Number of Tips on a Post: <b>{maxTips}</b></p>
+                  </center>
+                </Col>
+              </Row>
+              <hr />
+            </div>
           );
           that.setState({
             statistics: statistics
@@ -504,7 +516,7 @@ var Assets = React.createClass({
       buildGraph(posts, tips, 'profit', function (lineData) {
         profitsStatistics(posts, tips, function (revenues, costs) {
           var statistics = (
-            <Panel>
+            <div>
               <ButtonGroup className="assets-buttons">
                 <Button onClick={that.renderStatistics.bind(null, 'posts')}>
                   <center>
@@ -530,13 +542,16 @@ var Assets = React.createClass({
                 <LineChart data={lineData} options={{responsive: true}} height="100" />
               </center>
               <hr />
-              <Col md={3} lg={3} xl={3}>
-                <center>
-                  <p>Total Revenue: <b>{revenues}</b></p>
-                  <p>Total Bitstore Costs: <b>{costs}</b></p>
-                </center>
-              </Col>
-            </Panel>
+              <Row>
+                <Col md={3} lg={3} xl={3}>
+                  <center>
+                    <p>Total Revenue: <b>{revenues}</b></p>
+                    <p>Total Bitstore Costs: <b>{costs}</b></p>
+                  </center>
+                </Col>
+              </Row>
+              <hr />
+            </div>
           );
           that.setState({
             statistics: statistics
@@ -666,9 +681,7 @@ var Assets = React.createClass({
   render: function () {
     return (
       <div className="container">
-        <Panel>
-          <b style={{fontSize: "25px"}}> {this.props.address + "\'s Assets"} </b> 
-          <br /> <br />
+        <Panel header=<b style={{fontSize: "25px"}}> {this.props.address + "\'s Assets"} </b>>
           {this.state.statistics}
           <Table striped hover responsive>
             <thead>
@@ -680,7 +693,6 @@ var Assets = React.createClass({
                 <th>Bitstore</th>
               </tr>
             </thead>
-
             <tbody>
               {this.state.posts}
             </tbody>
