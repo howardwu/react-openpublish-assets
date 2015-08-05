@@ -11,6 +11,19 @@ Install react-openpublish-assets with the following command:
   npm install react-openpublish-assets
 ```
 
+## Usage
+
+To use react-openpublish-assets, first require the module:
+```javascript
+  var Assets = require('react-openpublish-assets');
+```
+The module requires two parameters: ``` address ``` and ``` network ```.
+The following is a sample JSX instantiation:
+```javascript
+  <Assets address='mjf6CRReqGSyvbgryjE3fbGjptRRfAL7cg' network='testnet' />
+```
+The ``` address ``` parameter is required. The ``` network ``` parameter is optional. If no ``` network ``` parameter is specified, ``` 'testnet' ``` will be used by default.
+
 ## Example
 
 To run the example:
@@ -18,3 +31,5 @@ To run the example:
   npm start
 ```
 and go to ```localhost:8000``` in your browser.
+
+For a live, working demo on the web, [click here](http://react-openpublish-assets.herokuapp.com).

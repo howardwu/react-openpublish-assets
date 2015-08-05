@@ -14,6 +14,8 @@ var ButtonGroup = require('react-bootstrap/lib/ButtonGroup');
 
 var LineChart = require("react-chartjs").Line;
 
+var BASE;
+
 function initialize(posts, tips, callback) {
   var tipsData = [];
   if (posts != undefined && posts.length > 0) {
@@ -322,7 +324,7 @@ function buildTable(sortedPosts, callback) {
           null,
           React.createElement(
             'a',
-            { href: "http://coinvote-testnet.herokuapp.com/permalink?sha1=" + post.sha1 },
+            { href: BASE + '/permalink?sha1=' + post.sha1 },
             post.title
           )
         ),
@@ -341,7 +343,7 @@ function buildTable(sortedPosts, callback) {
           null,
           React.createElement(
             'a',
-            { href: "http://coinvote-testnet.herokuapp.com/permalink?sha1=" + post.sha1 },
+            { href: BASE + '/permalink?sha1=' + post.sha1 },
             post.sha1,
             ' '
           )
@@ -374,10 +376,20 @@ var Assets = React.createClass({
   },
 
   componentDidMount: function componentDidMount() {
+    if (this.props.address === undefined) {
+      console.log('error: No address parameter is specified.');
+    }
     var address = this.props.address;
+    var BASE = 'http://coinvote-testnet.herokuapp.com';
+    if (this.props.network === undefined) {
+      console.log('No network parameter is specified, defaulting to testnet.');
+    }
+    if (this.props.network === 'mainnet') {
+      BASE = 'http://coinvote.herokuapp.com';
+    }
     var that = this;
     xhr({
-      url: 'http://coinvote-testnet.herokuapp.com/getPosts/user?address=' + address,
+      url: BASE + '/getPosts/user?address=' + address,
       headers: {
         "Content-Type": "application/json"
       },

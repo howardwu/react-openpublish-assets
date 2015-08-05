@@ -9,6 +9,6 @@ if (window.location.search.split("?address=") && window.location.search.split("?
 }
 
 React.render(
-  React.createElement(OpenPublishAssets, { address: address }),
+  React.createElement(OpenPublishAssets, { address: address, network: 'testnet' }),
   document.getElementById('example')
 );
