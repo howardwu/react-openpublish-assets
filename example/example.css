@@ -2,10 +2,53 @@
 .assets-buttons {
   width: 100%;
 }
-
 .assets-buttons .btn {
   width: 33.34%;
   height: 150px;
+}
+
+/* Visual Grid */
+.photo-container {
+  display: flex;
+}
+.column {
+  flex: 1;
+  border: 1px solid #e6e6e6;
+  box-sizing: border-box;
+}
+.column-one {
+    order: 1;
+}
+.column-two {
+    order: 2;
+}
+.column-three {
+    order: 3;
+}
+.column-four {
+    order: 4;
+}
+
+/* Bitstore Images */
+.bitstore-image {
+  width: 100%;
+  height: 0;
+  padding-bottom: 100%;
+  display:flex;
+  /*justify-content:center;*/
+  align-items:center;
+  overflow:hidden;
+}
+.bitstore-image .img {
+  flex-shrink:0;
+  min-width:100%;
+  min-height:100%
+}
+.bitstore-image:hover {
+  transform: scale(1.011);
+  z-index: +1;
+  position: relative;
+  opacity: 0.9;
 }
 
 /* Carets */

@@ -3,16 +3,20 @@
 var React = require('react');
 var xhr = require('xhr');
 
+var LineChart = require("react-chartjs").Line;
+
 var Row = require('react-bootstrap/lib/Row');
 var Col = require('react-bootstrap/lib/Col');
+var Grid = require('react-bootstrap/lib/Grid');
 var Panel = require('react-bootstrap/lib/Panel');
 var Table = require('react-bootstrap/lib/Table');
 var Button = require('react-bootstrap/lib/Button');
+var TabPane = require('react-bootstrap/lib/TabPane');
 var Glyphicon = require('react-bootstrap/lib/Glyphicon');
-var PageHeader = require('react-bootstrap/lib/PageHeader');
+var TabbedArea = require('react-bootstrap/lib/TabbedArea');
 var ButtonGroup = require('react-bootstrap/lib/ButtonGroup');
 
-var LineChart = require("react-chartjs").Line;
+var BitstoreContent = require("./bitstore-content.js");
 
 var BASE;
 
@@ -317,6 +321,7 @@ function buildTable(sortedPosts, callback) {
   if (sortedPosts != undefined && sortedPosts.length > 0) {
     var i = 0;
     sortedPosts.forEach(function (post) {
+      var src = "https://bitstore-test.blockai.com/" + post.owner + "/sha1/" + post.sha1;
       renderPosts.push(React.createElement(
         'tr',
         { key: i },
@@ -324,10 +329,15 @@ function buildTable(sortedPosts, callback) {
           'td',
           null,
           React.createElement(
-            'a',
-            { href: BASE + '/permalink?sha1=' + post.sha1 },
-            post.title
+            'center',
+            null,
+            React.createElement(BitstoreContent, { post: post, src: src, href: src, preview: true })
           )
+        ),
+        React.createElement(
+          'td',
+          null,
+          React.createElement(BitstoreContent, { post: post, src: src, href: src, text: true })
         ),
         React.createElement(
           'td',
@@ -348,15 +358,6 @@ function buildTable(sortedPosts, callback) {
             post.sha1,
             ' '
           )
-        ),
-        React.createElement(
-          'td',
-          null,
-          React.createElement(
-            'a',
-            { href: "https://bitstore-test.blockai.com/" + post.owner + "/sha1/" + post.sha1 },
-            'View Content'
-          )
         )
       ));
       if (i === sortedPosts.length - 1) {
@@ -366,6 +367,123 @@ function buildTable(sortedPosts, callback) {
     });
   } else {
     callback(renderPosts);
+  }
+}
+
+function buildVisual(posts, callback) {
+  var visual = [];
+  if (posts != undefined && posts.length > 0) {
+    var i = 0;
+    var length = Math.floor(posts.length / 4) * 4;
+    for (; i < length; i += 4) {
+      var p1 = posts[i];
+      var p2 = posts[i + 1];
+      var p3 = posts[i + 2];
+      var p4 = posts[i + 3];
+      var src1 = "https://bitstore-test.blockai.com/" + p1.owner + "/sha1/" + p1.sha1;
+      var src2 = "https://bitstore-test.blockai.com/" + p2.owner + "/sha1/" + p2.sha1;
+      var src3 = "https://bitstore-test.blockai.com/" + p3.owner + "/sha1/" + p3.sha1;
+      var src4 = "https://bitstore-test.blockai.com/" + p4.owner + "/sha1/" + p4.sha1;
+      visual.push(React.createElement(
+        'div',
+        { className: 'photo-container' },
+        React.createElement(
+          'div',
+          { className: 'column column-one' },
+          React.createElement(BitstoreContent, { post: p1, src: src1, href: src1, visual: true })
+        ),
+        React.createElement(
+          'div',
+          { className: 'column column-two' },
+          React.createElement(BitstoreContent, { post: p2, src: src2, href: src2, visual: true })
+        ),
+        React.createElement(
+          'div',
+          { className: 'column column-three' },
+          React.createElement(BitstoreContent, { post: p3, src: src3, href: src3, visual: true })
+        ),
+        React.createElement(
+          'div',
+          { className: 'column column-four' },
+          React.createElement(BitstoreContent, { post: p4, src: src4, href: src4, visual: true })
+        )
+      ));
+
+      if (i === length - 4) {
+        i += 4;
+        if (posts.length - i === 3) {
+          var p1 = posts[i];
+          var p2 = posts[i + 1];
+          var p3 = posts[i + 2];
+          var src1 = "https://bitstore-test.blockai.com/" + p1.owner + "/sha1/" + p1.sha1;
+          var src2 = "https://bitstore-test.blockai.com/" + p2.owner + "/sha1/" + p2.sha1;
+          var src3 = "https://bitstore-test.blockai.com/" + p3.owner + "/sha1/" + p3.sha1;
+          visual.push(React.createElement(
+            'div',
+            { className: 'photo-container' },
+            React.createElement(
+              'div',
+              { className: 'column column-one' },
+              React.createElement(BitstoreContent, { post: p1, src: src1, href: src1, visual: true })
+            ),
+            React.createElement(
+              'div',
+              { className: 'column column-two' },
+              React.createElement(BitstoreContent, { post: p2, src: src2, href: src2, visual: true })
+            ),
+            React.createElement(
+              'div',
+              { className: 'column column-three' },
+              React.createElement(BitstoreContent, { post: p3, src: src3, href: src3, visual: true })
+            ),
+            React.createElement('div', { className: 'column column-four' })
+          ));
+          callback(visual);
+        } else if (posts.length - i === 2) {
+          var p1 = posts[i];
+          var p2 = posts[i + 1];
+          var src1 = "https://bitstore-test.blockai.com/" + p1.owner + "/sha1/" + p1.sha1;
+          var src2 = "https://bitstore-test.blockai.com/" + p2.owner + "/sha1/" + p2.sha1;
+          visual.push(React.createElement(
+            'div',
+            { className: 'photo-container' },
+            React.createElement(
+              'div',
+              { className: 'column column-one' },
+              React.createElement(BitstoreContent, { post: p1, src: src1, href: src1, visual: true })
+            ),
+            React.createElement(
+              'div',
+              { className: 'column column-two' },
+              React.createElement(BitstoreContent, { post: p2, src: src2, href: src2, visual: true })
+            ),
+            React.createElement('div', { className: 'column column-three' }),
+            React.createElement('div', { className: 'column column-four' })
+          ));
+          callback(visual);
+        } else if (posts.length - i === 1) {
+          var p1 = posts[i];
+          var src1 = "https://bitstore-test.blockai.com/" + p1.owner + "/sha1/" + p1.sha1;
+          visual.push(React.createElement(
+            'div',
+            { className: 'photo-container' },
+            React.createElement(
+              'div',
+              { className: 'column column-one' },
+              React.createElement(BitstoreContent, { post: p1, src: src1, href: src1, visual: true })
+            ),
+            React.createElement('div', { className: 'column column-two' }),
+            React.createElement('div', { className: 'column column-three' }),
+            React.createElement('div', { className: 'column column-four' })
+          ));
+          callback(visual);
+        } else {
+          callback(visual);
+        }
+      }
+    }
+  } else {
+    callback(visual);
   }
 }
 
@@ -403,36 +521,39 @@ var Assets = React.createClass({
         console.log("Received response from server");
         initialize(JSON.parse(body).posts, JSON.parse(body).tips, function (posts, tips) {
           that.renderPosts(posts, function (sortedPosts) {
-            that.setState({
-              title: React.createElement(
-                'th',
-                null,
-                'Title ',
-                React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "title-up") })
-              ),
-              tips: React.createElement(
-                'th',
-                null,
-                'Tips ',
-                React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "tips-up") })
-              ),
-              date: React.createElement(
-                'th',
-                null,
-                'Date ',
-                React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "date-up") })
-              ),
-              sha1: React.createElement(
-                'th',
-                null,
-                'SHA1 ',
-                React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "sha1-up") })
-              ),
-              posts: sortedPosts,
-              rawPosts: posts,
-              rawTips: tips
+            that.renderVisual(posts, function (visual) {
+              that.setState({
+                title: React.createElement(
+                  'th',
+                  null,
+                  'Title ',
+                  React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "title-up") })
+                ),
+                tips: React.createElement(
+                  'th',
+                  null,
+                  'Tips ',
+                  React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "tips-up") })
+                ),
+                date: React.createElement(
+                  'th',
+                  null,
+                  'Date ',
+                  React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "date-up") })
+                ),
+                sha1: React.createElement(
+                  'th',
+                  null,
+                  'SHA1 ',
+                  React.createElement('img', { className: 'both-caret', onClick: that.sortPosts.bind(null, "sha1-up") })
+                ),
+                visual: visual,
+                posts: sortedPosts,
+                rawPosts: posts,
+                rawTips: tips
+              });
+              that.renderStatistics('tips');
             });
-            that.renderStatistics('tips');
           });
         });
       }
@@ -1210,6 +1331,12 @@ var Assets = React.createClass({
     }
   },
 
+  renderVisual: function renderVisual(posts, callback) {
+    buildVisual(posts, function (visual) {
+      callback(visual);
+    });
+  },
+
   render: function render() {
     return React.createElement(
       'div',
@@ -1223,31 +1350,50 @@ var Assets = React.createClass({
             this.props.address + "\'s Assets",
             ' '
           ) },
-        this.state.statistics,
         React.createElement(
-          Table,
-          { striped: true, hover: true, responsive: true },
+          TabbedArea,
+          { defaultActiveKey: 1 },
           React.createElement(
-            'thead',
-            null,
+            TabPane,
+            { eventKey: 1, tab: 'Overview' },
+            React.createElement('br', null),
+            this.state.statistics
+          ),
+          React.createElement(
+            TabPane,
+            { eventKey: 2, tab: 'Line' },
             React.createElement(
-              'tr',
-              null,
-              this.state.title,
-              this.state.tips,
-              this.state.date,
-              this.state.sha1,
+              Table,
+              { striped: true, hover: true, responsive: true },
               React.createElement(
-                'th',
+                'thead',
                 null,
-                'Bitstore'
+                React.createElement(
+                  'tr',
+                  null,
+                  React.createElement('th', null),
+                  this.state.title,
+                  this.state.tips,
+                  this.state.date,
+                  this.state.sha1
+                )
+              ),
+              React.createElement(
+                'tbody',
+                null,
+                this.state.posts
               )
             )
           ),
           React.createElement(
-            'tbody',
-            null,
-            this.state.posts
+            TabPane,
+            { eventKey: 3, tab: 'Visual' },
+            React.createElement(
+              'div',
+              null,
+              React.createElement('br', null),
+              this.state.visual
+            )
           )
         )
       )
