@@ -33,10 +33,21 @@ The module requires two parameters: ``` address ``` and ``` network ```. The ```
 
 In ```./example/example.js```, the ```address``` and ```network``` can be changed to any valid coinvote or coinvote-testnet account.
 
-To run the provided example:
+To see the provided example, run the following command to install the dependencies:
+```
+  npm install
+```
+Then, run:
 ```
   npm start
 ```
 and go to ```localhost:8000``` in your browser.
 
 For a live, working demo on the web, [click here](http://react-openpublish-assets.herokuapp.com).
+
+## Development
+
+To develop on react-openpublish-assets, run the following command:
+```
+  npm start
+```

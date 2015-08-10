@@ -1,1 +1,1 @@
-web: node ./example/web.js;
+web: make; node ./example/web.js;
