@@ -1,6 +1,6 @@
 # react-openpublish-assets
 
-[![Version](http://img.shields.io/npm/v/blocktrail-unofficial.svg)](https://www.npmjs.org/package/react-openpublish-assets)
+[![Version](http://img.shields.io/npm/v/react-openpublish-assets.svg)](https://www.npmjs.org/package/react-openpublish-assets)
 
 A React component for querying and rendering OpenPublish assets.
 
