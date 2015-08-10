@@ -7,16 +7,91 @@ var Button = require('react-bootstrap/lib/Button');
 var Glyphicon = require('react-bootstrap/lib/Glyphicon');
 
 var BitstoreContent = React.createClass({
-  getInitialState: function (){
-    return { showModal: false };
+  getInitialState: function () {
+    return {
+      showModal: false
+    };
   },
 
-  close: function (){
+  componentDidMount: function () {
+    this.renderModal();
+  },
+
+  close: function () {
     this.setState({ showModal: false });
   },
 
-  open: function (){
+  open: function () {
     this.setState({ showModal: true });
+  },
+
+  renderModal: function () {
+    var tips = this.props.tips;
+    var post = this.props.post;
+    var type = post.type;
+    if (type) {
+      type = type.split('/')[0];
+    }
+
+    var dateLine = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    var labels = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+    if (tips.length > 0) {
+      var thisYear = new Date().getUTCFullYear();
+      var title = post.title;
+      var that = this;
+      var i = 0;
+      tips.forEach(function (tip) {
+        if (tip.title === title) {
+          var tipYear = new Date(tip.date).getUTCFullYear();
+          if (tipYear === thisYear) {
+            var n = new Date(tip.date).getUTCMonth();
+            dateLine[n] += 1;
+          }
+        }
+        if (i === tips.length - 1) {
+          var lineData = {
+            labels: labels,
+            datasets: [
+              {
+                label: "Tips",
+                fillColor: "rgba(151,187,205,0.2)",
+                strokeColor: "rgba(151,187,205,1)",
+                pointColor: "rgba(151,187,205,1)",
+                pointStrokeColor: "#fff",
+                pointHighlightFill: "#fff",
+                pointHighlightStroke: "rgba(151,187,205,1)",
+                data: dateLine
+              }
+            ]
+          };
+          that.setState({
+            lineChart: <LineChart data={lineData} options={{responsive: true}} height="150" />
+          });
+        }
+        i++;
+      });
+    }
+    else {
+      var lineData = {
+        labels: labels,
+        datasets: [
+          {
+            label: "Tips",
+            fillColor: "rgba(151,187,205,0.2)",
+            strokeColor: "rgba(151,187,205,1)",
+            pointColor: "rgba(151,187,205,1)",
+            pointStrokeColor: "#fff",
+            pointHighlightFill: "#fff",
+            pointHighlightStroke: "rgba(151,187,205,1)",
+            data: dateLine
+          }
+        ]
+      };
+      this.setState({
+        lineChart: <LineChart data={lineData} options={{responsive: true}} height="150" />
+      });
+    }
   },
 
   render: function () {
@@ -30,23 +105,6 @@ var BitstoreContent = React.createClass({
 
     var modalImage = <Glyphicon style={{"fontSize": "25px"}} glyph='text-background' onClick={this.open} />;
     if (type === "image") modalImage = <img width="25px" height="25px" src={src} onClick={this.open} />;
-    var dateLine = [0, 1, 2, 1, 3, 5, 5, 6, 2, 3, 2, 1];
-    var labels = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    var lineData = {
-      labels: labels,
-      datasets: [
-        {
-          label: "Tips",
-          fillColor: "rgba(151,187,205,0.2)",
-          strokeColor: "rgba(151,187,205,1)",
-          pointColor: "rgba(151,187,205,1)",
-          pointStrokeColor: "#fff",
-          pointHighlightFill: "#fff",
-          pointHighlightStroke: "rgba(151,187,205,1)",
-          data: dateLine
-        }
-      ]
-    };
     var modal = (
       <Modal show={this.state.showModal} onHide={this.close}>
         <Modal.Header closeButton>
@@ -54,7 +112,7 @@ var BitstoreContent = React.createClass({
         </Modal.Header>
         <Modal.Body>
           <div>
-            <LineChart data={lineData} options={{responsive: true}} height="150" />
+            {this.state.lineChart}
           </div>
 
           <hr />

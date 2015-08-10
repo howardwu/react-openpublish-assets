@@ -14,7 +14,7 @@ var Glyphicon = require('react-bootstrap/lib/Glyphicon');
 var TabbedArea = require('react-bootstrap/lib/TabbedArea');
 var ButtonGroup = require('react-bootstrap/lib/ButtonGroup');
 
-var BitstoreContent = require("./bitstore-content.js");
+var BitstoreContent = require('./bitstore-content.js');
 
 var BASE;
 
@@ -337,7 +337,7 @@ function sortBySHA1(posts, sort, callback) {
   }
 }
 
-function buildTable(sortedPosts, callback) {
+function buildTable(sortedPosts, tips, callback) {
   var renderPosts = [];
   if (sortedPosts != undefined && sortedPosts.length > 0) {
     var i = 0;
@@ -347,10 +347,10 @@ function buildTable(sortedPosts, callback) {
         <tr key={i}>
           <td>
             <center>
-              <BitstoreContent post={post} src={src} href={src} preview={true} />
+              <BitstoreContent tips={tips} post={post} src={src} href={src} preview={true} />
             </center>
           </td>
-          <td><BitstoreContent post={post} src={src} href={src} text={true} /></td>
+          <td><BitstoreContent tips={tips} post={post} src={src} href={src} text={true} /></td>
           <td>{post.tips}</td>
           <td>{new Date(post.datetime).toLocaleString()}</td>
           <td><a href={BASE + '/permalink?sha1=' + post.sha1}>{post.sha1} </a></td>
@@ -367,7 +367,7 @@ function buildTable(sortedPosts, callback) {
   }
 }
 
-function buildVisual(posts, callback) {
+function buildVisual(posts, tips, callback) {
   var visual = [];
   if (posts != undefined && posts.length > 0) {
     var i = 0;
@@ -384,16 +384,16 @@ function buildVisual(posts, callback) {
       visual.push(
         <div className="photo-container">
           <div className="column column-one">
-            <BitstoreContent post={p1} src={src1} href={src1} visual={true} />
+            <BitstoreContent tips={tips} post={p1} src={src1} href={src1} visual={true} />
           </div>
           <div className="column column-two">
-            <BitstoreContent post={p2} src={src2} href={src2} visual={true} />
+            <BitstoreContent tips={tips} post={p2} src={src2} href={src2} visual={true} />
           </div>
           <div className="column column-three">
-            <BitstoreContent post={p3} src={src3} href={src3} visual={true} />
+            <BitstoreContent tips={tips} post={p3} src={src3} href={src3} visual={true} />
           </div>
           <div className="column column-four">
-            <BitstoreContent post={p4} src={src4} href={src4} visual={true} />
+            <BitstoreContent tips={tips} post={p4} src={src4} href={src4} visual={true} />
           </div>
         </div>
       );
@@ -410,13 +410,13 @@ function buildVisual(posts, callback) {
           visual.push(
             <div className="photo-container">
               <div className="column column-one">
-                <BitstoreContent post={p1} src={src1} href={src1} visual={true} />
+                <BitstoreContent tips={tips} post={p1} src={src1} href={src1} visual={true} />
               </div>
               <div className="column column-two">
-                <BitstoreContent post={p2} src={src2} href={src2} visual={true} />
+                <BitstoreContent tips={tips} post={p2} src={src2} href={src2} visual={true} />
               </div>
               <div className="column column-three">
-                <BitstoreContent post={p3} src={src3} href={src3} visual={true} />
+                <BitstoreContent tips={tips} post={p3} src={src3} href={src3} visual={true} />
               </div>
               <div className="column column-four">
               </div>
@@ -432,10 +432,10 @@ function buildVisual(posts, callback) {
           visual.push(
             <div className="photo-container">
               <div className="column column-one">
-                <BitstoreContent post={p1} src={src1} href={src1} visual={true} />
+                <BitstoreContent tips={tips} post={p1} src={src1} href={src1} visual={true} />
               </div>
               <div className="column column-two">
-                <BitstoreContent post={p2} src={src2} href={src2} visual={true} />
+                <BitstoreContent tips={tips} post={p2} src={src2} href={src2} visual={true} />
               </div>
               <div className="column column-three">
               </div>
@@ -451,7 +451,7 @@ function buildVisual(posts, callback) {
           visual.push(
             <div className="photo-container">
               <div className="column column-one">
-                <BitstoreContent post={p1} src={src1} href={src1} visual={true} />
+                <BitstoreContent tips={tips} post={p1} src={src1} href={src1} visual={true} />
               </div>
               <div className="column column-two">
               </div>
@@ -505,8 +505,8 @@ var Assets = React.createClass({
       if (resp.statusCode === 200) {
         console.log("Received response from server");
         initialize(JSON.parse(body).posts, JSON.parse(body).tips, function (posts, tips) {
-          that.renderPosts(posts, function (sortedPosts) {
-            that.renderVisual(posts, function (visual) {
+          that.renderPosts(posts, tips, function (sortedPosts) {
+            that.renderVisual(posts, tips, function (visual) {
               that.setState({
                 title: <th>Title <img className="both-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
                 tips: <th>Tips <img className="both-caret" onClick={that.sortPosts.bind(null, "tips-up")}></img></th>,
@@ -714,9 +714,9 @@ var Assets = React.createClass({
     }
   },
 
-  renderPosts: function (posts, callback) {
+  renderPosts: function (posts, tips, callback) {
     sortByDate(posts, 'up', function (sortedPosts) {
-      buildTable(sortedPosts, function (renderPosts) {
+      buildTable(sortedPosts, tips, function (renderPosts) {
         callback(renderPosts);
       });
     });
@@ -831,8 +831,8 @@ var Assets = React.createClass({
     }
   },
 
-  renderVisual: function (posts, callback) {
-    buildVisual(posts, function (visual) {
+  renderVisual: function (posts, tips, callback) {
+    buildVisual(posts, tips, function (visual) {
       callback(visual);
     });
   },

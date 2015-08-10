@@ -16,7 +16,7 @@ var Glyphicon = require('react-bootstrap/lib/Glyphicon');
 var TabbedArea = require('react-bootstrap/lib/TabbedArea');
 var ButtonGroup = require('react-bootstrap/lib/ButtonGroup');
 
-var BitstoreContent = require("./bitstore-content.js");
+var BitstoreContent = require('./bitstore-content.js');
 
 var BASE;
 
@@ -316,7 +316,7 @@ function sortBySHA1(posts, sort, callback) {
   }
 }
 
-function buildTable(sortedPosts, callback) {
+function buildTable(sortedPosts, tips, callback) {
   var renderPosts = [];
   if (sortedPosts != undefined && sortedPosts.length > 0) {
     var i = 0;
@@ -331,13 +331,13 @@ function buildTable(sortedPosts, callback) {
           React.createElement(
             'center',
             null,
-            React.createElement(BitstoreContent, { post: post, src: src, href: src, preview: true })
+            React.createElement(BitstoreContent, { tips: tips, post: post, src: src, href: src, preview: true })
           )
         ),
         React.createElement(
           'td',
           null,
-          React.createElement(BitstoreContent, { post: post, src: src, href: src, text: true })
+          React.createElement(BitstoreContent, { tips: tips, post: post, src: src, href: src, text: true })
         ),
         React.createElement(
           'td',
@@ -370,7 +370,7 @@ function buildTable(sortedPosts, callback) {
   }
 }
 
-function buildVisual(posts, callback) {
+function buildVisual(posts, tips, callback) {
   var visual = [];
   if (posts != undefined && posts.length > 0) {
     var i = 0;
@@ -390,22 +390,22 @@ function buildVisual(posts, callback) {
         React.createElement(
           'div',
           { className: 'column column-one' },
-          React.createElement(BitstoreContent, { post: p1, src: src1, href: src1, visual: true })
+          React.createElement(BitstoreContent, { tips: tips, post: p1, src: src1, href: src1, visual: true })
         ),
         React.createElement(
           'div',
           { className: 'column column-two' },
-          React.createElement(BitstoreContent, { post: p2, src: src2, href: src2, visual: true })
+          React.createElement(BitstoreContent, { tips: tips, post: p2, src: src2, href: src2, visual: true })
         ),
         React.createElement(
           'div',
           { className: 'column column-three' },
-          React.createElement(BitstoreContent, { post: p3, src: src3, href: src3, visual: true })
+          React.createElement(BitstoreContent, { tips: tips, post: p3, src: src3, href: src3, visual: true })
         ),
         React.createElement(
           'div',
           { className: 'column column-four' },
-          React.createElement(BitstoreContent, { post: p4, src: src4, href: src4, visual: true })
+          React.createElement(BitstoreContent, { tips: tips, post: p4, src: src4, href: src4, visual: true })
         )
       ));
 
@@ -424,17 +424,17 @@ function buildVisual(posts, callback) {
             React.createElement(
               'div',
               { className: 'column column-one' },
-              React.createElement(BitstoreContent, { post: p1, src: src1, href: src1, visual: true })
+              React.createElement(BitstoreContent, { tips: tips, post: p1, src: src1, href: src1, visual: true })
             ),
             React.createElement(
               'div',
               { className: 'column column-two' },
-              React.createElement(BitstoreContent, { post: p2, src: src2, href: src2, visual: true })
+              React.createElement(BitstoreContent, { tips: tips, post: p2, src: src2, href: src2, visual: true })
             ),
             React.createElement(
               'div',
               { className: 'column column-three' },
-              React.createElement(BitstoreContent, { post: p3, src: src3, href: src3, visual: true })
+              React.createElement(BitstoreContent, { tips: tips, post: p3, src: src3, href: src3, visual: true })
             ),
             React.createElement('div', { className: 'column column-four' })
           ));
@@ -450,12 +450,12 @@ function buildVisual(posts, callback) {
             React.createElement(
               'div',
               { className: 'column column-one' },
-              React.createElement(BitstoreContent, { post: p1, src: src1, href: src1, visual: true })
+              React.createElement(BitstoreContent, { tips: tips, post: p1, src: src1, href: src1, visual: true })
             ),
             React.createElement(
               'div',
               { className: 'column column-two' },
-              React.createElement(BitstoreContent, { post: p2, src: src2, href: src2, visual: true })
+              React.createElement(BitstoreContent, { tips: tips, post: p2, src: src2, href: src2, visual: true })
             ),
             React.createElement('div', { className: 'column column-three' }),
             React.createElement('div', { className: 'column column-four' })
@@ -470,7 +470,7 @@ function buildVisual(posts, callback) {
             React.createElement(
               'div',
               { className: 'column column-one' },
-              React.createElement(BitstoreContent, { post: p1, src: src1, href: src1, visual: true })
+              React.createElement(BitstoreContent, { tips: tips, post: p1, src: src1, href: src1, visual: true })
             ),
             React.createElement('div', { className: 'column column-two' }),
             React.createElement('div', { className: 'column column-three' }),
@@ -520,8 +520,8 @@ var Assets = React.createClass({
       if (resp.statusCode === 200) {
         console.log("Received response from server");
         initialize(JSON.parse(body).posts, JSON.parse(body).tips, function (posts, tips) {
-          that.renderPosts(posts, function (sortedPosts) {
-            that.renderVisual(posts, function (visual) {
+          that.renderPosts(posts, tips, function (sortedPosts) {
+            that.renderVisual(posts, tips, function (visual) {
               that.setState({
                 title: React.createElement(
                   'th',
@@ -1061,9 +1061,9 @@ var Assets = React.createClass({
     }
   },
 
-  renderPosts: function renderPosts(posts, callback) {
+  renderPosts: function renderPosts(posts, tips, callback) {
     sortByDate(posts, 'up', function (sortedPosts) {
-      buildTable(sortedPosts, function (renderPosts) {
+      buildTable(sortedPosts, tips, function (renderPosts) {
         callback(renderPosts);
       });
     });
@@ -1331,8 +1331,8 @@ var Assets = React.createClass({
     }
   },
 
-  renderVisual: function renderVisual(posts, callback) {
-    buildVisual(posts, function (visual) {
+  renderVisual: function renderVisual(posts, tips, callback) {
+    buildVisual(posts, tips, function (visual) {
       callback(visual);
     });
   },
