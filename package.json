@@ -1,6 +1,6 @@
 {
   "name": "react-openpublish-assets",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "A React component for querying and rendering OpenPublish assets",
   "main": "build/index.js",
   "scripts": {
