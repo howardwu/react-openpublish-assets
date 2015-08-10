@@ -375,18 +375,124 @@ function buildVisual(posts, tips, callback) {
   if (posts != undefined && posts.length > 0) {
     var i = 0;
     var length = Math.floor(posts.length / 4) * 4;
-    for (; i < length; i += 4) {
+    if (length > 4) {
+      for (; i < length; i += 4) {
+        var p1 = posts[i];
+        var p2 = posts[i + 1];
+        var p3 = posts[i + 2];
+        var p4 = posts[i + 3];
+        var src1 = "https://bitstore-test.blockai.com/" + p1.owner + "/sha1/" + p1.sha1;
+        var src2 = "https://bitstore-test.blockai.com/" + p2.owner + "/sha1/" + p2.sha1;
+        var src3 = "https://bitstore-test.blockai.com/" + p3.owner + "/sha1/" + p3.sha1;
+        var src4 = "https://bitstore-test.blockai.com/" + p4.owner + "/sha1/" + p4.sha1;
+        visual.push(React.createElement(
+          'div',
+          { key: i, className: 'photo-container' },
+          React.createElement(
+            'div',
+            { className: 'column column-one' },
+            React.createElement(BitstoreContent, { tips: tips, post: p1, src: src1, href: src1, visual: true })
+          ),
+          React.createElement(
+            'div',
+            { className: 'column column-two' },
+            React.createElement(BitstoreContent, { tips: tips, post: p2, src: src2, href: src2, visual: true })
+          ),
+          React.createElement(
+            'div',
+            { className: 'column column-three' },
+            React.createElement(BitstoreContent, { tips: tips, post: p3, src: src3, href: src3, visual: true })
+          ),
+          React.createElement(
+            'div',
+            { className: 'column column-four' },
+            React.createElement(BitstoreContent, { tips: tips, post: p4, src: src4, href: src4, visual: true })
+          )
+        ));
+
+        if (i === length - 4) {
+          i += 4;
+          if (posts.length - i === 3) {
+            var p1 = posts[i];
+            var p2 = posts[i + 1];
+            var p3 = posts[i + 2];
+            var src1 = "https://bitstore-test.blockai.com/" + p1.owner + "/sha1/" + p1.sha1;
+            var src2 = "https://bitstore-test.blockai.com/" + p2.owner + "/sha1/" + p2.sha1;
+            var src3 = "https://bitstore-test.blockai.com/" + p3.owner + "/sha1/" + p3.sha1;
+            visual.push(React.createElement(
+              'div',
+              { key: i, className: 'photo-container' },
+              React.createElement(
+                'div',
+                { className: 'column column-one' },
+                React.createElement(BitstoreContent, { tips: tips, post: p1, src: src1, href: src1, visual: true })
+              ),
+              React.createElement(
+                'div',
+                { className: 'column column-two' },
+                React.createElement(BitstoreContent, { tips: tips, post: p2, src: src2, href: src2, visual: true })
+              ),
+              React.createElement(
+                'div',
+                { className: 'column column-three' },
+                React.createElement(BitstoreContent, { tips: tips, post: p3, src: src3, href: src3, visual: true })
+              ),
+              React.createElement('div', { className: 'column column-four' })
+            ));
+            callback(visual);
+          } else if (posts.length - i === 2) {
+            var p1 = posts[i];
+            var p2 = posts[i + 1];
+            var src1 = "https://bitstore-test.blockai.com/" + p1.owner + "/sha1/" + p1.sha1;
+            var src2 = "https://bitstore-test.blockai.com/" + p2.owner + "/sha1/" + p2.sha1;
+            visual.push(React.createElement(
+              'div',
+              { key: i, className: 'photo-container' },
+              React.createElement(
+                'div',
+                { className: 'column column-one' },
+                React.createElement(BitstoreContent, { tips: tips, post: p1, src: src1, href: src1, visual: true })
+              ),
+              React.createElement(
+                'div',
+                { className: 'column column-two' },
+                React.createElement(BitstoreContent, { tips: tips, post: p2, src: src2, href: src2, visual: true })
+              ),
+              React.createElement('div', { className: 'column column-three' }),
+              React.createElement('div', { className: 'column column-four' })
+            ));
+            callback(visual);
+          } else if (posts.length - i === 1) {
+            var p1 = posts[i];
+            var src1 = "https://bitstore-test.blockai.com/" + p1.owner + "/sha1/" + p1.sha1;
+            visual.push(React.createElement(
+              'div',
+              { key: i, className: 'photo-container' },
+              React.createElement(
+                'div',
+                { className: 'column column-one' },
+                React.createElement(BitstoreContent, { tips: tips, post: p1, src: src1, href: src1, visual: true })
+              ),
+              React.createElement('div', { className: 'column column-two' }),
+              React.createElement('div', { className: 'column column-three' }),
+              React.createElement('div', { className: 'column column-four' })
+            ));
+            callback(visual);
+          } else {
+            callback(visual);
+          }
+        }
+      }
+    } else if (posts.length - i === 3) {
       var p1 = posts[i];
       var p2 = posts[i + 1];
       var p3 = posts[i + 2];
-      var p4 = posts[i + 3];
       var src1 = "https://bitstore-test.blockai.com/" + p1.owner + "/sha1/" + p1.sha1;
       var src2 = "https://bitstore-test.blockai.com/" + p2.owner + "/sha1/" + p2.sha1;
       var src3 = "https://bitstore-test.blockai.com/" + p3.owner + "/sha1/" + p3.sha1;
-      var src4 = "https://bitstore-test.blockai.com/" + p4.owner + "/sha1/" + p4.sha1;
       visual.push(React.createElement(
         'div',
-        { className: 'photo-container' },
+        { key: i, className: 'photo-container' },
         React.createElement(
           'div',
           { className: 'column column-one' },
@@ -402,85 +508,47 @@ function buildVisual(posts, tips, callback) {
           { className: 'column column-three' },
           React.createElement(BitstoreContent, { tips: tips, post: p3, src: src3, href: src3, visual: true })
         ),
+        React.createElement('div', { className: 'column column-four' })
+      ));
+      callback(visual);
+    } else if (posts.length - i === 2) {
+      var p1 = posts[i];
+      var p2 = posts[i + 1];
+      var src1 = "https://bitstore-test.blockai.com/" + p1.owner + "/sha1/" + p1.sha1;
+      var src2 = "https://bitstore-test.blockai.com/" + p2.owner + "/sha1/" + p2.sha1;
+      visual.push(React.createElement(
+        'div',
+        { key: i, className: 'photo-container' },
         React.createElement(
           'div',
-          { className: 'column column-four' },
-          React.createElement(BitstoreContent, { tips: tips, post: p4, src: src4, href: src4, visual: true })
-        )
+          { className: 'column column-one' },
+          React.createElement(BitstoreContent, { tips: tips, post: p1, src: src1, href: src1, visual: true })
+        ),
+        React.createElement(
+          'div',
+          { className: 'column column-two' },
+          React.createElement(BitstoreContent, { tips: tips, post: p2, src: src2, href: src2, visual: true })
+        ),
+        React.createElement('div', { className: 'column column-three' }),
+        React.createElement('div', { className: 'column column-four' })
       ));
-
-      if (i === length - 4) {
-        i += 4;
-        if (posts.length - i === 3) {
-          var p1 = posts[i];
-          var p2 = posts[i + 1];
-          var p3 = posts[i + 2];
-          var src1 = "https://bitstore-test.blockai.com/" + p1.owner + "/sha1/" + p1.sha1;
-          var src2 = "https://bitstore-test.blockai.com/" + p2.owner + "/sha1/" + p2.sha1;
-          var src3 = "https://bitstore-test.blockai.com/" + p3.owner + "/sha1/" + p3.sha1;
-          visual.push(React.createElement(
-            'div',
-            { className: 'photo-container' },
-            React.createElement(
-              'div',
-              { className: 'column column-one' },
-              React.createElement(BitstoreContent, { tips: tips, post: p1, src: src1, href: src1, visual: true })
-            ),
-            React.createElement(
-              'div',
-              { className: 'column column-two' },
-              React.createElement(BitstoreContent, { tips: tips, post: p2, src: src2, href: src2, visual: true })
-            ),
-            React.createElement(
-              'div',
-              { className: 'column column-three' },
-              React.createElement(BitstoreContent, { tips: tips, post: p3, src: src3, href: src3, visual: true })
-            ),
-            React.createElement('div', { className: 'column column-four' })
-          ));
-          callback(visual);
-        } else if (posts.length - i === 2) {
-          var p1 = posts[i];
-          var p2 = posts[i + 1];
-          var src1 = "https://bitstore-test.blockai.com/" + p1.owner + "/sha1/" + p1.sha1;
-          var src2 = "https://bitstore-test.blockai.com/" + p2.owner + "/sha1/" + p2.sha1;
-          visual.push(React.createElement(
-            'div',
-            { className: 'photo-container' },
-            React.createElement(
-              'div',
-              { className: 'column column-one' },
-              React.createElement(BitstoreContent, { tips: tips, post: p1, src: src1, href: src1, visual: true })
-            ),
-            React.createElement(
-              'div',
-              { className: 'column column-two' },
-              React.createElement(BitstoreContent, { tips: tips, post: p2, src: src2, href: src2, visual: true })
-            ),
-            React.createElement('div', { className: 'column column-three' }),
-            React.createElement('div', { className: 'column column-four' })
-          ));
-          callback(visual);
-        } else if (posts.length - i === 1) {
-          var p1 = posts[i];
-          var src1 = "https://bitstore-test.blockai.com/" + p1.owner + "/sha1/" + p1.sha1;
-          visual.push(React.createElement(
-            'div',
-            { className: 'photo-container' },
-            React.createElement(
-              'div',
-              { className: 'column column-one' },
-              React.createElement(BitstoreContent, { tips: tips, post: p1, src: src1, href: src1, visual: true })
-            ),
-            React.createElement('div', { className: 'column column-two' }),
-            React.createElement('div', { className: 'column column-three' }),
-            React.createElement('div', { className: 'column column-four' })
-          ));
-          callback(visual);
-        } else {
-          callback(visual);
-        }
-      }
+      callback(visual);
+    } else if (posts.length - i === 1) {
+      var p1 = posts[i];
+      var src1 = "https://bitstore-test.blockai.com/" + p1.owner + "/sha1/" + p1.sha1;
+      visual.push(React.createElement(
+        'div',
+        { key: i, className: 'photo-container' },
+        React.createElement(
+          'div',
+          { className: 'column column-one' },
+          React.createElement(BitstoreContent, { tips: tips, post: p1, src: src1, href: src1, visual: true })
+        ),
+        React.createElement('div', { className: 'column column-two' }),
+        React.createElement('div', { className: 'column column-three' }),
+        React.createElement('div', { className: 'column column-four' })
+      ));
+      callback(visual);
     }
   } else {
     callback(visual);
