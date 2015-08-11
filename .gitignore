@@ -29,8 +29,8 @@ testnet
 mainnet
 
 # Build files
-public/javascripts/bundle.js
-public/stylesheets/bundle.css
+build/*
+example/build.js
 
 # DS_Store
 .DS_Store
