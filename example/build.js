@@ -3744,7 +3744,7 @@ var Button = _react2['default'].createClass({
       _extends({}, this.props, {
         href: href,
         className: _classnames2['default'](this.props.className, classes),
-        role: "button" }),
+        role: 'button' }),
       this.props.children
     );
   },
@@ -3910,7 +3910,7 @@ var ButtonInput = (function (_InputBase) {
     var other = _objectWithoutProperties(_props2, ['children', 'value']);
 
     var val = children ? children : value;
-    return _react2['default'].createElement(_Button2['default'], _extends({}, other, { componentClass: "input", ref: "input", key: "input", value: val }));
+    return _react2['default'].createElement(_Button2['default'], _extends({}, other, { componentClass: 'input', ref: 'input', key: 'input', value: val }));
   };
 
   return ButtonInput;
@@ -4229,7 +4229,7 @@ var Collapse = (function (_React$Component) {
       _extends({
         ref: 'transition'
       }, this.props, {
-        'aria-expanded': this.props['in'],
+        'aria-expanded': this.props.role ? this.props['in'] : null,
         className: this._dimension() === 'width' ? 'width' : '',
         exitedClassName: 'collapse',
         exitingClassName: 'collapsing',
@@ -4361,7 +4361,12 @@ Collapse.propTypes = {
    * should animate in its specified dimension. Called with the current
    * dimension prop value and the DOM node.
    */
-  getDimensionValue: _react2['default'].PropTypes.func
+  getDimensionValue: _react2['default'].PropTypes.func,
+
+  /**
+   * ARIA role of collapsible element
+   */
+  role: _react2['default'].PropTypes.string
 };
 
 Collapse.defaultProps = {
@@ -4583,12 +4588,14 @@ var Glyphicon = _react2['default'].createClass({
   mixins: [_BootstrapMixin2['default']],
 
   propTypes: {
-    glyph: _react2['default'].PropTypes.oneOf(_styleMaps2['default'].GLYPHS).isRequired
+    glyph: _react2['default'].PropTypes.oneOf(_styleMaps2['default'].GLYPHS).isRequired,
+    formControlFeedback: _react2['default'].PropTypes.bool
   },
 
   getDefaultProps: function getDefaultProps() {
     return {
-      bsClass: 'glyphicon'
+      bsClass: 'glyphicon',
+      formControlFeedback: false
     };
   },
 
@@ -4596,6 +4603,7 @@ var Glyphicon = _react2['default'].createClass({
     var classes = this.getBsClassSet();
 
     classes['glyphicon-' + this.props.glyph] = true;
+    classes['form-control-feedback'] = this.props.formControlFeedback;
 
     return _react2['default'].createElement(
       'span',
@@ -4690,6 +4698,10 @@ var _FormGroup = require('./FormGroup');
 
 var _FormGroup2 = _interopRequireDefault(_FormGroup);
 
+var _Glyphicon = require('./Glyphicon');
+
+var _Glyphicon2 = _interopRequireDefault(_Glyphicon);
+
 var InputBase = (function (_React$Component) {
   _inherits(InputBase, _React$Component);
 
@@ -4745,25 +4757,25 @@ var InputBase = (function (_React$Component) {
   InputBase.prototype.renderInputGroup = function renderInputGroup(children) {
     var addonBefore = this.props.addonBefore ? _react2['default'].createElement(
       'span',
-      { className: "input-group-addon", key: "addonBefore" },
+      { className: 'input-group-addon', key: 'addonBefore' },
       this.props.addonBefore
     ) : null;
 
     var addonAfter = this.props.addonAfter ? _react2['default'].createElement(
       'span',
-      { className: "input-group-addon", key: "addonAfter" },
+      { className: 'input-group-addon', key: 'addonAfter' },
       this.props.addonAfter
     ) : null;
 
     var buttonBefore = this.props.buttonBefore ? _react2['default'].createElement(
       'span',
-      { className: "input-group-btn" },
+      { className: 'input-group-btn' },
       this.props.buttonBefore
     ) : null;
 
     var buttonAfter = this.props.buttonAfter ? _react2['default'].createElement(
       'span',
-      { className: "input-group-btn" },
+      { className: 'input-group-btn' },
       this.props.buttonAfter
     ) : null;
 
@@ -4777,7 +4789,7 @@ var InputBase = (function (_React$Component) {
 
     return addonBefore || addonAfter || buttonBefore || buttonAfter ? _react2['default'].createElement(
       'div',
-      { className: _classnames2['default'](inputGroupClassName, 'input-group'), key: "input-group" },
+      { className: _classnames2['default'](inputGroupClassName, 'input-group'), key: 'input-group' },
       addonBefore,
       buttonBefore,
       children,
@@ -4787,21 +4799,30 @@ var InputBase = (function (_React$Component) {
   };
 
   InputBase.prototype.renderIcon = function renderIcon() {
-    var classes = {
-      'glyphicon': true,
-      'form-control-feedback': true,
-      'glyphicon-ok': this.props.bsStyle === 'success',
-      'glyphicon-warning-sign': this.props.bsStyle === 'warning',
-      'glyphicon-remove': this.props.bsStyle === 'error'
-    };
+    if (this.props.hasFeedback) {
+      if (this.props.feedbackIcon) {
+        return _react2['default'].cloneElement(this.props.feedbackIcon, { formControlFeedback: true });
+      }
 
-    return this.props.hasFeedback ? _react2['default'].createElement('span', { className: _classnames2['default'](classes), key: "icon" }) : null;
+      switch (this.props.bsStyle) {
+        case 'success':
+          return _react2['default'].createElement(_Glyphicon2['default'], { formControlFeedback: true, glyph: 'ok', key: 'icon' });
+        case 'warning':
+          return _react2['default'].createElement(_Glyphicon2['default'], { formControlFeedback: true, glyph: 'warning-sign', key: 'icon' });
+        case 'error':
+          return _react2['default'].createElement(_Glyphicon2['default'], { formControlFeedback: true, glyph: 'remove', key: 'icon' });
+        default:
+          return _react2['default'].createElement('span', { className: 'form-control-feedback', key: 'icon' });
+      }
+    } else {
+      return null;
+    }
   };
 
   InputBase.prototype.renderHelp = function renderHelp() {
     return this.props.help ? _react2['default'].createElement(
       'span',
-      { className: "help-block", key: "help" },
+      { className: 'help-block', key: 'help' },
       this.props.help
     ) : null;
   };
@@ -4814,7 +4835,7 @@ var InputBase = (function (_React$Component) {
 
     return _react2['default'].createElement(
       'div',
-      { className: _classnames2['default'](classes), key: "checkboxRadioWrapper" },
+      { className: _classnames2['default'](classes), key: 'checkboxRadioWrapper' },
       children
     );
   };
@@ -4822,7 +4843,7 @@ var InputBase = (function (_React$Component) {
   InputBase.prototype.renderWrapper = function renderWrapper(children) {
     return this.props.wrapperClassName ? _react2['default'].createElement(
       'div',
-      { className: this.props.wrapperClassName, key: "wrapper" },
+      { className: this.props.wrapperClassName, key: 'wrapper' },
       children
     ) : children;
   };
@@ -4835,7 +4856,7 @@ var InputBase = (function (_React$Component) {
 
     return this.props.label ? _react2['default'].createElement(
       'label',
-      { htmlFor: this.props.id, className: _classnames2['default'](classes), key: "label" },
+      { htmlFor: this.props.id, className: _classnames2['default'](classes), key: 'label' },
       children,
       this.props.label
     ) : children;
@@ -4850,21 +4871,21 @@ var InputBase = (function (_React$Component) {
       case 'select':
         return _react2['default'].createElement(
           'select',
-          _extends({}, this.props, { className: _classnames2['default'](this.props.className, 'form-control'), ref: "input", key: "input" }),
+          _extends({}, this.props, { className: _classnames2['default'](this.props.className, 'form-control'), ref: 'input', key: 'input' }),
           this.props.children
         );
       case 'textarea':
-        return _react2['default'].createElement('textarea', _extends({}, this.props, { className: _classnames2['default'](this.props.className, 'form-control'), ref: "input", key: "input" }));
+        return _react2['default'].createElement('textarea', _extends({}, this.props, { className: _classnames2['default'](this.props.className, 'form-control'), ref: 'input', key: 'input' }));
       case 'static':
         return _react2['default'].createElement(
           'p',
-          _extends({}, this.props, { className: _classnames2['default'](this.props.className, 'form-control-static'), ref: "input", key: "input" }),
+          _extends({}, this.props, { className: _classnames2['default'](this.props.className, 'form-control-static'), ref: 'input', key: 'input' }),
           this.props.value
         );
     }
 
     var className = this.isCheckboxOrRadio() || this.isFile() ? '' : 'form-control';
-    return _react2['default'].createElement('input', _extends({}, this.props, { className: _classnames2['default'](this.props.className, className), ref: "input", key: "input" }));
+    return _react2['default'].createElement('input', _extends({}, this.props, { className: _classnames2['default'](this.props.className, className), ref: 'input', key: 'input' }));
   };
 
   InputBase.prototype.renderFormGroup = function renderFormGroup(children) {
@@ -4898,6 +4919,7 @@ InputBase.propTypes = {
   bsSize: _react2['default'].PropTypes.oneOf(['small', 'medium', 'large']),
   bsStyle: _react2['default'].PropTypes.oneOf(['success', 'warning', 'error']),
   hasFeedback: _react2['default'].PropTypes.bool,
+  feedbackIcon: _react2['default'].PropTypes.node,
   id: _react2['default'].PropTypes.string,
   groupClassName: _react2['default'].PropTypes.string,
   wrapperClassName: _react2['default'].PropTypes.string,
@@ -4909,7 +4931,7 @@ InputBase.propTypes = {
 
 exports['default'] = InputBase;
 module.exports = exports['default'];
-},{"./FormGroup":11,"babel-runtime/helpers/class-call-check":44,"babel-runtime/helpers/extends":45,"babel-runtime/helpers/inherits":46,"babel-runtime/helpers/interop-require-default":47,"classnames":73,"react":236}],15:[function(require,module,exports){
+},{"./FormGroup":11,"./Glyphicon":12,"babel-runtime/helpers/class-call-check":44,"babel-runtime/helpers/extends":45,"babel-runtime/helpers/inherits":46,"babel-runtime/helpers/interop-require-default":47,"classnames":73,"react":236}],15:[function(require,module,exports){
 /*eslint-disable react/prop-types */
 'use strict';
 
@@ -4975,6 +4997,8 @@ var _ModalTitle2 = _interopRequireDefault(_ModalTitle);
 
 var _ModalFooter = require('./ModalFooter');
 
+var _ModalFooter2 = _interopRequireDefault(_ModalFooter);
+
 /**
  * Gets the correct clientHeight of the modal container
  * when the body/window/document you need to use the docElement clientHeight
@@ -4982,9 +5006,6 @@ var _ModalFooter = require('./ModalFooter');
  * @param  {ReactElement|HTMLElement} context
  * @return {Number}
  */
-
-var _ModalFooter2 = _interopRequireDefault(_ModalFooter);
-
 function containerClientHeight(container, context) {
   var doc = _utilsDomUtils2['default'].ownerDocument(context);
 
@@ -5064,6 +5085,7 @@ var Modal = _react2['default'].createClass({
      * Include a backdrop component. Specify 'static' for a backdrop that doesn't trigger an "onHide" when clicked.
      */
     backdrop: _react2['default'].PropTypes.oneOf(['static', true, false]),
+
     /**
      * Close the modal when escape key is pressed
      */
@@ -5108,7 +5130,9 @@ var Modal = _react2['default'].createClass({
   },
 
   getInitialState: function getInitialState() {
-    return { exited: !this.props.show };
+    return {
+      exited: !this.props.show
+    };
   },
 
   render: function render() {
@@ -5137,9 +5161,8 @@ var Modal = _react2['default'].createClass({
       Dialog,
       _extends({}, props, {
         ref: this._setDialogRef,
-        className: _classnames2['default']({ 'in': show && !animation }),
-        onClick: backdrop === true ? this.handleBackdropClick : null
-      }),
+        className: _classnames2['default'](this.props.className, { 'in': show && !animation }),
+        onClick: backdrop === true ? this.handleBackdropClick : null }),
       this.renderContent()
     );
 
@@ -5156,8 +5179,7 @@ var Modal = _react2['default'].createClass({
           onExited: this.handleHidden,
           onEnter: onEnter,
           onEntering: onEntering,
-          onEntered: onEntered
-        },
+          onEntered: onEntered },
         modal
       );
     }
@@ -5197,14 +5219,15 @@ var Modal = _react2['default'].createClass({
     // Don't handle clicks for "static" backdrops
     var onClick = this.props.backdrop === true ? this.handleBackdropClick : null;
 
-    var backdrop = _react2['default'].createElement('div', { ref: "backdrop",
+    var backdrop = _react2['default'].createElement('div', {
+      ref: 'backdrop',
       className: _classnames2['default'](bsClass + '-backdrop', { 'in': this.props.show && !animation }),
-      onClick: onClick
-    });
+      onClick: onClick });
 
     return _react2['default'].createElement(
       'div',
-      { ref: 'modal' },
+      {
+        ref: 'modal' },
       animation ? _react2['default'].createElement(
         _Fade2['default'],
         { transitionAppear: true, 'in': this.props.show, duration: duration },
@@ -5467,7 +5490,8 @@ var ModalBody = (function (_React$Component) {
   ModalBody.prototype.render = function render() {
     return _react2['default'].createElement(
       'div',
-      _extends({}, this.props, { className: _classnames2['default'](this.props.className, this.props.modalClassName) }),
+      _extends({}, this.props, {
+        className: _classnames2['default'](this.props.className, this.props.modalClassName) }),
       this.props.children
     );
   };
@@ -5516,7 +5540,6 @@ var ModalDialog = _react2['default'].createClass({
   mixins: [_BootstrapMixin2['default']],
 
   propTypes: {
-
     /**
      * A Callback fired when the header closeButton or non-static backdrop is clicked.
      * @type {function}
@@ -5550,11 +5573,10 @@ var ModalDialog = _react2['default'].createClass({
       'div',
       _extends({}, this.props, {
         title: null,
-        tabIndex: "-1",
-        role: "dialog",
+        tabIndex: '-1',
+        role: 'dialog',
         style: modalStyle,
-        className: _classnames2['default'](this.props.className, bsClass)
-      }),
+        className: _classnames2['default'](this.props.className, bsClass) }),
       _react2['default'].createElement(
         'div',
         { className: _classnames2['default'](this.props.dialogClassName, dialogClasses) },
@@ -5603,7 +5625,8 @@ var ModalFooter = (function (_React$Component) {
   ModalFooter.prototype.render = function render() {
     return _react2['default'].createElement(
       'div',
-      _extends({}, this.props, { className: _classnames2['default'](this.props.className, this.props.modalClassName) }),
+      _extends({}, this.props, {
+        className: _classnames2['default'](this.props.className, this.props.modalClassName) }),
       this.props.children
     );
   };
@@ -5660,17 +5683,15 @@ var ModalHeader = (function (_React$Component) {
     return _react2['default'].createElement(
       'div',
       _extends({}, this.props, {
-        className: _classnames2['default'](this.props.className, this.props.modalClassName)
-      }),
+        className: _classnames2['default'](this.props.className, this.props.modalClassName) }),
       this.props.closeButton && _react2['default'].createElement(
         'button',
         {
           className: 'close',
-          onClick: this.props.onHide
-        },
+          onClick: this.props.onHide },
         _react2['default'].createElement(
           'span',
-          { 'aria-hidden': "true" },
+          { 'aria-hidden': 'true' },
           '×'
         )
       ),
@@ -5689,14 +5710,17 @@ ModalHeader.propTypes = {
    * It is used for Assistive Technology when the label text is not visible on screen.
    */
   'aria-label': _react2['default'].PropTypes.string,
+
   /**
    * A css class applied to the Component
    */
   modalClassName: _react2['default'].PropTypes.string,
+
   /**
    * Specify whether the Component should contain a close button
    */
   closeButton: _react2['default'].PropTypes.bool,
+
   /**
    * A Callback fired when the close button is clicked. If used directly inside a Modal component, the onHide will automatically
    * be propagated up to the parent Modal `onHide`.
@@ -5745,7 +5769,8 @@ var ModalTitle = (function (_React$Component) {
   ModalTitle.prototype.render = function render() {
     return _react2['default'].createElement(
       'h4',
-      _extends({}, this.props, { className: _classnames2['default'](this.props.className, this.props.modalClassName) }),
+      _extends({}, this.props, {
+        className: _classnames2['default'](this.props.className, this.props.modalClassName) }),
       this.props.children
     );
   };
@@ -5875,7 +5900,7 @@ var Nav = _react2['default'].createClass({
         role: this.props.bsStyle === 'tabs' ? 'tablist' : null,
         className: _classnames2['default'](this.props.ulClassName, classes),
         id: this.props.ulId,
-        ref: "ul"
+        ref: 'ul'
       }),
       _utilsValidComponentChildren2['default'].map(this.props.children, this.renderNavItem)
     );
@@ -6115,8 +6140,7 @@ var Panel = _react2['default'].createClass({
         {
           className: collapseClass,
           id: this.props.id,
-          ref: 'panel',
-          'aria-expanded': this.isExpanded() },
+          ref: 'panel' },
         this.renderBody()
       )
     );
@@ -6306,7 +6330,6 @@ var Portal = _react2['default'].createClass({
   },
 
   _renderOverlay: function _renderOverlay() {
-
     var overlay = !this.props.children ? null : _react2['default'].Children.only(this.props.children);
 
     // Save reference for future access.
@@ -6423,13 +6446,13 @@ var _react2 = _interopRequireDefault(_react);
 
 var _utilsCreateChainedFunction = require('./utils/createChainedFunction');
 
+var _utilsCreateChainedFunction2 = _interopRequireDefault(_utilsCreateChainedFunction);
+
 /**
  * Note: This is intended as a stop-gap for accessibility concerns that the
  * Bootstrap CSS does not address as they have styled anchors and not buttons
  * in many cases.
  */
-
-var _utilsCreateChainedFunction2 = _interopRequireDefault(_utilsCreateChainedFunction);
 
 var SafeAnchor = (function (_React$Component) {
   _inherits(SafeAnchor, _React$Component);
@@ -6698,7 +6721,7 @@ var TabbedArea = _react2['default'].createClass({
 
     var nav = _react2['default'].createElement(
       _Nav2['default'],
-      _extends({}, props, { activeKey: this.getActiveKey(), onSelect: this.handleSelect, ref: "tabs" }),
+      _extends({}, props, { activeKey: this.getActiveKey(), onSelect: this.handleSelect, ref: 'tabs' }),
       _utilsValidComponentChildren2['default'].map(this.props.children, renderTabIfSet, this)
     );
 
@@ -6708,7 +6731,7 @@ var TabbedArea = _react2['default'].createClass({
       nav,
       _react2['default'].createElement(
         'div',
-        { id: id, className: "tab-content", ref: "panes" },
+        { id: id, className: 'tab-content', ref: 'panes' },
         _utilsValidComponentChildren2['default'].map(this.props.children, this.renderPane)
       )
     );
@@ -6826,7 +6849,7 @@ var Table = _react2['default'].createClass({
 
     return this.props.responsive ? _react2['default'].createElement(
       'div',
-      { className: "table-responsive" },
+      { className: 'table-responsive' },
       table
     ) : table;
   }
@@ -7567,6 +7590,8 @@ exports.__esModule = true;
 
 var _react = require('react');
 
+var _react2 = _interopRequireDefault(_react);
+
 /**
  * Maps children that are typically specified as `props.children`,
  * but only iterates over children that are "valid components".
@@ -7579,9 +7604,6 @@ var _react = require('react');
  * @param {*} mapContext Context for mapFunction.
  * @return {object} Object containing the ordered map of results.
  */
-
-var _react2 = _interopRequireDefault(_react);
-
 function mapValidComponents(children, func, context) {
   var index = 0;
 
@@ -28741,42 +28763,22 @@ var BitstoreContent = React.createClass({
       if (type === "image") {
         return React.createElement(
           'div',
-          null,
-          React.createElement(
-            'div',
-            { className: 'bitstore-image' },
-            React.createElement('img', { src: src, onClick: this.open })
-          ),
+          { style: { width: "100%", height: "100%" } },
+          React.createElement('img', { className: 'bitstore-image', src: src, onClick: this.open }),
           modal
         );
       } else if (type === "audio") {
         return React.createElement(
           'div',
-          null,
-          React.createElement(
-            'center',
-            null,
-            React.createElement(
-              'div',
-              { className: 'bitstore-image' },
-              React.createElement('img', { src: 'http://cdn2.thefullsignal.com/sites/knowyourcell/files/images/329855.jpg', onClick: this.open })
-            )
-          ),
+          { style: { width: "100%", height: "100%" } },
+          React.createElement('img', { className: 'bitstore-image', src: 'http://cdn2.thefullsignal.com/sites/knowyourcell/files/images/329855.jpg', onClick: this.open }),
           modal
         );
       } else {
         return React.createElement(
           'div',
-          null,
-          React.createElement(
-            'center',
-            null,
-            React.createElement(
-              'div',
-              { className: 'bitstore-image' },
-              React.createElement('img', { src: 'http://www.1wallpaperhd.com/wp-content/uploads/Colorful/FTP1/1280x720/Solid%20color%20wallpapers%2002%201280x720.jpg', onClick: this.open })
-            )
-          ),
+          { style: { width: "100%", height: "100%" } },
+          React.createElement('img', { className: 'bitstore-image', src: 'http://www.1wallpaperhd.com/wp-content/uploads/Colorful/FTP1/1280x720/Solid%20color%20wallpapers%2002%201280x720.jpg', onClick: this.open }),
           modal
         );
       }
@@ -29174,183 +29176,16 @@ function buildTable(sortedPosts, tips, callback) {
 function buildVisual(posts, tips, callback) {
   var visual = [];
   if (posts != undefined && posts.length > 0) {
-    var i = 0;
-    var length = Math.floor(posts.length / 4) * 4;
-    if (length > 4) {
-      for (; i < length; i += 4) {
-        var p1 = posts[i];
-        var p2 = posts[i + 1];
-        var p3 = posts[i + 2];
-        var p4 = posts[i + 3];
-        var src1 = "https://bitstore-test.blockai.com/" + p1.owner + "/sha1/" + p1.sha1;
-        var src2 = "https://bitstore-test.blockai.com/" + p2.owner + "/sha1/" + p2.sha1;
-        var src3 = "https://bitstore-test.blockai.com/" + p3.owner + "/sha1/" + p3.sha1;
-        var src4 = "https://bitstore-test.blockai.com/" + p4.owner + "/sha1/" + p4.sha1;
-        visual.push(React.createElement(
-          'div',
-          { key: i, className: 'photo-container' },
-          React.createElement(
-            'div',
-            { className: 'column column-one' },
-            React.createElement(BitstoreContent, { tips: tips, post: p1, src: src1, href: src1, visual: true })
-          ),
-          React.createElement(
-            'div',
-            { className: 'column column-two' },
-            React.createElement(BitstoreContent, { tips: tips, post: p2, src: src2, href: src2, visual: true })
-          ),
-          React.createElement(
-            'div',
-            { className: 'column column-three' },
-            React.createElement(BitstoreContent, { tips: tips, post: p3, src: src3, href: src3, visual: true })
-          ),
-          React.createElement(
-            'div',
-            { className: 'column column-four' },
-            React.createElement(BitstoreContent, { tips: tips, post: p4, src: src4, href: src4, visual: true })
-          )
-        ));
-
-        if (i === length - 4) {
-          i += 4;
-          if (posts.length - i === 3) {
-            var p1 = posts[i];
-            var p2 = posts[i + 1];
-            var p3 = posts[i + 2];
-            var src1 = "https://bitstore-test.blockai.com/" + p1.owner + "/sha1/" + p1.sha1;
-            var src2 = "https://bitstore-test.blockai.com/" + p2.owner + "/sha1/" + p2.sha1;
-            var src3 = "https://bitstore-test.blockai.com/" + p3.owner + "/sha1/" + p3.sha1;
-            visual.push(React.createElement(
-              'div',
-              { key: i, className: 'photo-container' },
-              React.createElement(
-                'div',
-                { className: 'column column-one' },
-                React.createElement(BitstoreContent, { tips: tips, post: p1, src: src1, href: src1, visual: true })
-              ),
-              React.createElement(
-                'div',
-                { className: 'column column-two' },
-                React.createElement(BitstoreContent, { tips: tips, post: p2, src: src2, href: src2, visual: true })
-              ),
-              React.createElement(
-                'div',
-                { className: 'column column-three' },
-                React.createElement(BitstoreContent, { tips: tips, post: p3, src: src3, href: src3, visual: true })
-              ),
-              React.createElement('div', { className: 'column column-four' })
-            ));
-            callback(visual);
-          } else if (posts.length - i === 2) {
-            var p1 = posts[i];
-            var p2 = posts[i + 1];
-            var src1 = "https://bitstore-test.blockai.com/" + p1.owner + "/sha1/" + p1.sha1;
-            var src2 = "https://bitstore-test.blockai.com/" + p2.owner + "/sha1/" + p2.sha1;
-            visual.push(React.createElement(
-              'div',
-              { key: i, className: 'photo-container' },
-              React.createElement(
-                'div',
-                { className: 'column column-one' },
-                React.createElement(BitstoreContent, { tips: tips, post: p1, src: src1, href: src1, visual: true })
-              ),
-              React.createElement(
-                'div',
-                { className: 'column column-two' },
-                React.createElement(BitstoreContent, { tips: tips, post: p2, src: src2, href: src2, visual: true })
-              ),
-              React.createElement('div', { className: 'column column-three' }),
-              React.createElement('div', { className: 'column column-four' })
-            ));
-            callback(visual);
-          } else if (posts.length - i === 1) {
-            var p1 = posts[i];
-            var src1 = "https://bitstore-test.blockai.com/" + p1.owner + "/sha1/" + p1.sha1;
-            visual.push(React.createElement(
-              'div',
-              { key: i, className: 'photo-container' },
-              React.createElement(
-                'div',
-                { className: 'column column-one' },
-                React.createElement(BitstoreContent, { tips: tips, post: p1, src: src1, href: src1, visual: true })
-              ),
-              React.createElement('div', { className: 'column column-two' }),
-              React.createElement('div', { className: 'column column-three' }),
-              React.createElement('div', { className: 'column column-four' })
-            ));
-            callback(visual);
-          } else {
-            callback(visual);
-          }
-        }
-      }
-    } else if (posts.length - i === 3) {
-      var p1 = posts[i];
-      var p2 = posts[i + 1];
-      var p3 = posts[i + 2];
-      var src1 = "https://bitstore-test.blockai.com/" + p1.owner + "/sha1/" + p1.sha1;
-      var src2 = "https://bitstore-test.blockai.com/" + p2.owner + "/sha1/" + p2.sha1;
-      var src3 = "https://bitstore-test.blockai.com/" + p3.owner + "/sha1/" + p3.sha1;
+    for (var i = 0; i < posts.length; i++) {
+      var post = posts[i];
+      var src = "https://bitstore-test.blockai.com/" + post.owner + "/sha1/" + post.sha1;
       visual.push(React.createElement(
         'div',
-        { key: i, className: 'photo-container' },
-        React.createElement(
-          'div',
-          { className: 'column column-one' },
-          React.createElement(BitstoreContent, { tips: tips, post: p1, src: src1, href: src1, visual: true })
-        ),
-        React.createElement(
-          'div',
-          { className: 'column column-two' },
-          React.createElement(BitstoreContent, { tips: tips, post: p2, src: src2, href: src2, visual: true })
-        ),
-        React.createElement(
-          'div',
-          { className: 'column column-three' },
-          React.createElement(BitstoreContent, { tips: tips, post: p3, src: src3, href: src3, visual: true })
-        ),
-        React.createElement('div', { className: 'column column-four' })
+        { className: 'photo-container' },
+        React.createElement(BitstoreContent, { tips: tips, post: post, src: src, href: src, visual: true })
       ));
-      callback(visual);
-    } else if (posts.length - i === 2) {
-      var p1 = posts[i];
-      var p2 = posts[i + 1];
-      var src1 = "https://bitstore-test.blockai.com/" + p1.owner + "/sha1/" + p1.sha1;
-      var src2 = "https://bitstore-test.blockai.com/" + p2.owner + "/sha1/" + p2.sha1;
-      visual.push(React.createElement(
-        'div',
-        { key: i, className: 'photo-container' },
-        React.createElement(
-          'div',
-          { className: 'column column-one' },
-          React.createElement(BitstoreContent, { tips: tips, post: p1, src: src1, href: src1, visual: true })
-        ),
-        React.createElement(
-          'div',
-          { className: 'column column-two' },
-          React.createElement(BitstoreContent, { tips: tips, post: p2, src: src2, href: src2, visual: true })
-        ),
-        React.createElement('div', { className: 'column column-three' }),
-        React.createElement('div', { className: 'column column-four' })
-      ));
-      callback(visual);
-    } else if (posts.length - i === 1) {
-      var p1 = posts[i];
-      var src1 = "https://bitstore-test.blockai.com/" + p1.owner + "/sha1/" + p1.sha1;
-      visual.push(React.createElement(
-        'div',
-        { key: i, className: 'photo-container' },
-        React.createElement(
-          'div',
-          { className: 'column column-one' },
-          React.createElement(BitstoreContent, { tips: tips, post: p1, src: src1, href: src1, visual: true })
-        ),
-        React.createElement('div', { className: 'column column-two' }),
-        React.createElement('div', { className: 'column column-three' }),
-        React.createElement('div', { className: 'column column-four' })
-      ));
-      callback(visual);
     }
+    callback(visual);
   } else {
     callback(visual);
   }
