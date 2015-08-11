@@ -182,21 +182,21 @@ var BitstoreContent = React.createClass({
       if (type === "image") {
         return React.createElement(
           'div',
-          { style: { width: "100%", height: "100%" } },
+          { className: 'photo-container' },
           React.createElement('img', { className: 'bitstore-image', src: src, onClick: this.open }),
           modal
         );
       } else if (type === "audio") {
         return React.createElement(
           'div',
-          { style: { width: "100%", height: "100%" } },
+          { className: 'photo-container' },
           React.createElement('img', { className: 'bitstore-image', src: 'http://cdn2.thefullsignal.com/sites/knowyourcell/files/images/329855.jpg', onClick: this.open }),
           modal
         );
       } else {
         return React.createElement(
           'div',
-          { style: { width: "100%", height: "100%" } },
+          { className: 'photo-container' },
           React.createElement('img', { className: 'bitstore-image', src: 'http://www.1wallpaperhd.com/wp-content/uploads/Colorful/FTP1/1280x720/Solid%20color%20wallpapers%2002%201280x720.jpg', onClick: this.open }),
           modal
         );

@@ -152,7 +152,7 @@ var BitstoreContent = React.createClass({
     else if (this.props.visual) {
       if (type === "image") {
         return (
-          <div style={{width: "100%", height: "100%"}}>
+          <div className="photo-container">
             <img className="bitstore-image" src={src} onClick={this.open} />
             {modal}
           </div>
@@ -160,7 +160,7 @@ var BitstoreContent = React.createClass({
       }
       else if (type === "audio") {
         return (
-          <div style={{width: "100%", height: "100%"}}>
+          <div className="photo-container">
             <img className="bitstore-image" src="http://cdn2.thefullsignal.com/sites/knowyourcell/files/images/329855.jpg" onClick={this.open} />
             {modal}
           </div>
@@ -168,7 +168,7 @@ var BitstoreContent = React.createClass({
       }
       else {
         return (
-          <div style={{width: "100%", height: "100%"}}>
+          <div className="photo-container">
             <img className="bitstore-image" src="http://www.1wallpaperhd.com/wp-content/uploads/Colorful/FTP1/1280x720/Solid%20color%20wallpapers%2002%201280x720.jpg" onClick={this.open} />
             {modal}
           </div>

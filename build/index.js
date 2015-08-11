@@ -376,11 +376,7 @@ function buildVisual(posts, tips, callback) {
     for (var i = 0; i < posts.length; i++) {
       var post = posts[i];
       var src = "https://bitstore-test.blockai.com/" + post.owner + "/sha1/" + post.sha1;
-      visual.push(React.createElement(
-        'div',
-        { className: 'photo-container' },
-        React.createElement(BitstoreContent, { tips: tips, post: post, src: src, href: src, visual: true })
-      ));
+      visual.push(React.createElement(BitstoreContent, { key: i, tips: tips, post: post, src: src, href: src, visual: true }));
     }
     callback(visual);
   } else {

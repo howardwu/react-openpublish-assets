@@ -41,7 +41,7 @@ Then, run:
 ```
   npm start
 ```
-and go to ```localhost:8000``` in your browser.
+and go to ```localhost:5000``` in your browser.
 
 For a live, working demo on the web, [click here](http://react-openpublish-assets.herokuapp.com).
 
