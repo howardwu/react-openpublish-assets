@@ -2,7 +2,6 @@
 
 var React = require('react');
 var LineChart = require("react-chartjs").Line;
-var easyimg = require('easyimage');
 
 var Modal = require('react-bootstrap/lib/Modal');
 var Panel = require('react-bootstrap/lib/Panel');
@@ -181,21 +180,12 @@ var BitstoreContent = React.createClass({
       }
     } else if (this.props.visual) {
       if (type === "image") {
-        easyimg.thumbnail({
-          src: { src: src },
-          width: 500, height: 500,
-          x: 0, y: 0
-        }).then(function (image) {
-          console.log('Resized and cropped: ' + image.width + ' x ' + image.height);
-          return React.createElement(
-            'div',
-            { className: 'photo-container' },
-            image,
-            modal
-          );
-        }, function (err) {
-          console.log(err);
-        });
+        return React.createElement(
+          'div',
+          { className: 'photo-container' },
+          React.createElement('img', { className: 'bitstore-image', src: src, onClick: this.open }),
+          modal
+        );
       } else if (type === "audio") {
         return React.createElement(
           'div',

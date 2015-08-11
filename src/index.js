@@ -632,10 +632,11 @@ var Assets = React.createClass({
 
   sortPosts: function (sort) {
     var posts = this.state.rawPosts;
+    var tips = this.state.rawTips;
     var that = this;
     if (sort === 'title-up') {
       sortByTitle(posts, 'up', function (sortedPosts) {
-        buildTable(sortedPosts, function (renderPosts) {
+        buildTable(sortedPosts, tips, function (renderPosts) {
           that.setState({
             posts: renderPosts,
             title: <th>Title <img className="up-caret" onClick={that.sortPosts.bind(null, "title-down")}></img></th>,
@@ -648,7 +649,7 @@ var Assets = React.createClass({
     }
     else if (sort === 'title-down') {
       sortByTitle(posts, 'down', function (sortedPosts) {
-        buildTable(sortedPosts, function (renderPosts) {
+        buildTable(sortedPosts, tips, function (renderPosts) {
           that.setState({
             posts: renderPosts,
             title: <th>Title <img className="down-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
@@ -661,7 +662,7 @@ var Assets = React.createClass({
     }
     else if (sort === 'tips-up') {
       sortByTips(posts, 'up', function (sortedPosts) {
-        buildTable(sortedPosts, function (renderPosts) {
+        buildTable(sortedPosts, tips, function (renderPosts) {
           that.setState({
             posts: renderPosts,
             title: <th>Title <img className="both-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
@@ -674,7 +675,7 @@ var Assets = React.createClass({
     }
     else if (sort === 'tips-down') {
       sortByTips(posts, 'down', function (sortedPosts) {
-        buildTable(sortedPosts, function (renderPosts) {
+        buildTable(sortedPosts, tips, function (renderPosts) {
           that.setState({
             posts: renderPosts,
             title: <th>Title <img className="both-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
@@ -687,7 +688,7 @@ var Assets = React.createClass({
     }
     else if (sort === 'date-up') {
       sortByDate(posts, 'up', function (sortedPosts) {
-        buildTable(sortedPosts, function (renderPosts) {
+        buildTable(sortedPosts, tips, function (renderPosts) {
           that.setState({
             posts: renderPosts,
             title: <th>Title <img className="both-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
@@ -700,7 +701,7 @@ var Assets = React.createClass({
     }
     else if (sort === 'date-down') {
       sortByDate(posts, 'down', function (sortedPosts) {
-        buildTable(sortedPosts, function (renderPosts) {
+        buildTable(sortedPosts, tips, function (renderPosts) {
           that.setState({
             posts: renderPosts,
             title: <th>Title <img className="both-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
@@ -713,7 +714,7 @@ var Assets = React.createClass({
     }
     else if (sort === 'sha1-up') {
       sortBySHA1(posts, 'up', function (sortedPosts) {
-        buildTable(sortedPosts, function (renderPosts) {
+        buildTable(sortedPosts, tips, function (renderPosts) {
           that.setState({
             posts: renderPosts,
             title: <th>Title <img className="both-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
@@ -726,7 +727,7 @@ var Assets = React.createClass({
     }
     else if (sort === 'sha1-down') {
       sortBySHA1(posts, 'down', function (sortedPosts) {
-        buildTable(sortedPosts, function (renderPosts) {
+        buildTable(sortedPosts, tips, function (renderPosts) {
           that.setState({
             posts: renderPosts,
             title: <th>Title <img className="both-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
