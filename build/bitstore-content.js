@@ -2,7 +2,6 @@
 
 var React = require('react');
 var LineChart = require("react-chartjs").Line;
-var easyimg = require('easyimage');
 
 var Modal = require('react-bootstrap/lib/Modal');
 var Panel = require('react-bootstrap/lib/Panel');
@@ -181,33 +180,21 @@ var BitstoreContent = React.createClass({
       }
     } else if (this.props.visual) {
       if (type === "image") {
-        easyimg.thumbnail({
-          src: { src: src },
-          width: 500, height: 500,
-          x: 0, y: 0
-        }).then(function (image) {
-          console.log('Resized and cropped: ' + image.width + ' x ' + image.height);
-          return React.createElement(
-            'div',
-            { className: 'photo-container' },
-            image,
-            modal
-          );
-        }, function (err) {
-          console.log(err);
-        });
+        return React.createElement(
+          'div',
+          { className: 'photo-container', style: { backgroundImage: 'url(' + src + ')' }, onClick: this.open },
+          modal
+        );
       } else if (type === "audio") {
         return React.createElement(
           'div',
-          { className: 'photo-container' },
-          React.createElement('img', { className: 'bitstore-image', src: 'http://cdn2.thefullsignal.com/sites/knowyourcell/files/images/329855.jpg', onClick: this.open }),
+          { className: 'photo-container', style: { backgroundImage: 'url(http://cdn2.thefullsignal.com/sites/knowyourcell/files/images/329855.jpg)' }, onClick: this.open },
           modal
         );
       } else {
         return React.createElement(
           'div',
-          { className: 'photo-container' },
-          React.createElement('img', { className: 'bitstore-image', src: 'http://www.1wallpaperhd.com/wp-content/uploads/Colorful/FTP1/1280x720/Solid%20color%20wallpapers%2002%201280x720.jpg', onClick: this.open }),
+          { className: 'photo-container', style: { backgroundImage: 'url(http://www.1wallpaperhd.com/wp-content/uploads/Colorful/FTP1/1280x720/Solid%20color%20wallpapers%2002%201280x720.jpg)' }, onClick: this.open },
           modal
         );
       }
