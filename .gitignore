@@ -29,7 +29,6 @@ testnet
 mainnet
 
 # Build files
-build/*
 example/build.js
 
 # DS_Store

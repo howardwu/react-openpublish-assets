@@ -4,7 +4,7 @@
   "description": "A React component for querying and rendering OpenPublish assets",
   "main": "build/index.js",
   "scripts": {
-    "start": "make && node ./example/web.js"
+    "start": "foreman start"
   },
   "repository": {
     "type": "git",
