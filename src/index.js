@@ -337,7 +337,7 @@ function sortBySHA1(posts, sort, callback) {
   }
 }
 
-function buildTable(sortedPosts, tips, callback) {
+function buildTable(sortedPosts, tips, base, callback) {
   var renderPosts = [];
   if (sortedPosts != undefined && sortedPosts.length > 0) {
     var i = 0;
@@ -353,7 +353,7 @@ function buildTable(sortedPosts, tips, callback) {
           <td><BitstoreContent tips={tips} post={post} src={src} href={src} text={true} /></td>
           <td>{post.tips}</td>
           <td>{new Date(post.datetime).toLocaleString()}</td>
-          <td><a href={BASE + '/permalink?sha1=' + post.sha1}>{post.sha1} </a></td>
+          <td><a href={base + '/permalink?sha1=' + post.sha1}>{post.sha1} </a></td>
         </tr>
       );
       if (i === sortedPosts.length - 1) {
@@ -393,12 +393,8 @@ var Assets = React.createClass({
     }
     var address = this.props.address;
     var BASE = 'http://coinvote-testnet.herokuapp.com';
-    if (this.props.network === undefined) {
-      console.log('No network parameter is specified, defaulting to testnet.');
-    }
-    if (this.props.network === 'mainnet') {
-      BASE = 'http://coinvote.herokuapp.com';
-    }
+    if (this.props.network === undefined) console.log('No network parameter is specified, defaulting to testnet.');
+    if (this.props.network === 'mainnet') BASE = 'http://coinvote.herokuapp.com';
     var that = this;
     xhr({
       url: BASE + '/getPosts/user?address=' + address,
@@ -413,7 +409,7 @@ var Assets = React.createClass({
       if (resp.statusCode === 200) {
         console.log("Received response from server");
         initialize(JSON.parse(body).posts, JSON.parse(body).tips, function (posts, tips) {
-          that.renderPosts(posts, tips, function (sortedPosts) {
+          that.renderPosts(posts, tips, BASE, function (sortedPosts) {
             that.renderVisual(posts, tips, function (visual) {
               that.setState({
                 title: <th>Title <img className="both-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
@@ -423,7 +419,8 @@ var Assets = React.createClass({
                 visual: visual,
                 posts: sortedPosts,
                 rawPosts: posts,
-                rawTips: tips
+                rawTips: tips,
+                base: BASE
               });
               that.renderStatistics('tips');
             });
@@ -622,9 +619,9 @@ var Assets = React.createClass({
     }
   },
 
-  renderPosts: function (posts, tips, callback) {
+  renderPosts: function (posts, tips, base, callback) {
     sortByDate(posts, 'up', function (sortedPosts) {
-      buildTable(sortedPosts, tips, function (renderPosts) {
+      buildTable(sortedPosts, tips, base, function (renderPosts) {
         callback(renderPosts);
       });
     });
@@ -632,10 +629,12 @@ var Assets = React.createClass({
 
   sortPosts: function (sort) {
     var posts = this.state.rawPosts;
+    var tips = this.state.rawTips;
+    var base = this.state.base;
     var that = this;
     if (sort === 'title-up') {
       sortByTitle(posts, 'up', function (sortedPosts) {
-        buildTable(sortedPosts, function (renderPosts) {
+        buildTable(sortedPosts, tips, base, function (renderPosts) {
           that.setState({
             posts: renderPosts,
             title: <th>Title <img className="up-caret" onClick={that.sortPosts.bind(null, "title-down")}></img></th>,
@@ -648,7 +647,7 @@ var Assets = React.createClass({
     }
     else if (sort === 'title-down') {
       sortByTitle(posts, 'down', function (sortedPosts) {
-        buildTable(sortedPosts, function (renderPosts) {
+        buildTable(sortedPosts, tips, base, function (renderPosts) {
           that.setState({
             posts: renderPosts,
             title: <th>Title <img className="down-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
@@ -661,7 +660,7 @@ var Assets = React.createClass({
     }
     else if (sort === 'tips-up') {
       sortByTips(posts, 'up', function (sortedPosts) {
-        buildTable(sortedPosts, function (renderPosts) {
+        buildTable(sortedPosts, tips, base, function (renderPosts) {
           that.setState({
             posts: renderPosts,
             title: <th>Title <img className="both-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
@@ -674,7 +673,7 @@ var Assets = React.createClass({
     }
     else if (sort === 'tips-down') {
       sortByTips(posts, 'down', function (sortedPosts) {
-        buildTable(sortedPosts, function (renderPosts) {
+        buildTable(sortedPosts, tips, base, function (renderPosts) {
           that.setState({
             posts: renderPosts,
             title: <th>Title <img className="both-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
@@ -687,7 +686,7 @@ var Assets = React.createClass({
     }
     else if (sort === 'date-up') {
       sortByDate(posts, 'up', function (sortedPosts) {
-        buildTable(sortedPosts, function (renderPosts) {
+        buildTable(sortedPosts, tips, base, function (renderPosts) {
           that.setState({
             posts: renderPosts,
             title: <th>Title <img className="both-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
@@ -700,7 +699,7 @@ var Assets = React.createClass({
     }
     else if (sort === 'date-down') {
       sortByDate(posts, 'down', function (sortedPosts) {
-        buildTable(sortedPosts, function (renderPosts) {
+        buildTable(sortedPosts, tips, base, function (renderPosts) {
           that.setState({
             posts: renderPosts,
             title: <th>Title <img className="both-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
@@ -713,7 +712,7 @@ var Assets = React.createClass({
     }
     else if (sort === 'sha1-up') {
       sortBySHA1(posts, 'up', function (sortedPosts) {
-        buildTable(sortedPosts, function (renderPosts) {
+        buildTable(sortedPosts, tips, base, function (renderPosts) {
           that.setState({
             posts: renderPosts,
             title: <th>Title <img className="both-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
@@ -726,7 +725,7 @@ var Assets = React.createClass({
     }
     else if (sort === 'sha1-down') {
       sortBySHA1(posts, 'down', function (sortedPosts) {
-        buildTable(sortedPosts, function (renderPosts) {
+        buildTable(sortedPosts, tips, base, function (renderPosts) {
           that.setState({
             posts: renderPosts,
             title: <th>Title <img className="both-caret" onClick={that.sortPosts.bind(null, "title-up")}></img></th>,
