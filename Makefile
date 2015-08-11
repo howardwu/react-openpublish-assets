@@ -1,8 +1,6 @@
 all: clean build
 
-clean: clean_js
-
-clean_js:
+clean:
 	rm -rf build/*
 
 build: example/build.js
