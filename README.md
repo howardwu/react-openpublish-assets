@@ -47,7 +47,7 @@ For a live, working demo on the web, [click here](http://react-openpublish-asset
 
 ## Development
 
-To develop on react-openpublish-assets, run the following command:
+Feel free to develop on react-openpublish-assets. To test modifications during development, run the following command:
 ```
   npm start
 ```
