@@ -1,7 +1,6 @@
 'use strict';
 
 var React = require('react');
-var xhr = require('xhr');
 
 var LineChart = require("react-chartjs").Line;
 
@@ -18,36 +17,19 @@ var ButtonGroup = require('react-bootstrap/lib/ButtonGroup');
 
 var BitstoreContent = require('./bitstore-content.js');
 
-var BASE;
-
-function initialize(posts, tips, callback) {
-  var tipsData = [];
-  if (posts != undefined && posts.length > 0) {
-    var i = 0;
-    posts.forEach(function (post) {
-      if (tips[post.sha1] != undefined && tips[post.sha1].length > 0) {
-        tips[post.sha1].forEach(function (tip) {
-          tipsData.push({
-            date: tip.datetime,
-            title: post.title
-          });
-        });
-      }
-      if (i === posts.length - 1) {
-        callback(posts, tipsData);
-      }
-      i++;
-    });
-  } else {
-    callback(posts, tipsData);
-  }
+function initialize(posts, callback) {
+  var i = 0;
+  var j = 0;
+  posts.forEach(function (post) {
+    j += post.tipCount;
+    if (++i === posts.length) callback(j);
+  });
 }
 
-function buildGraph(posts, tips, sort, callback) {
+function buildGraph(posts, sort, callback) {
   var dateLine = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  var labels = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   var lineData = {
-    labels: labels,
+    labels: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
     datasets: [{
       label: "Tips",
       fillColor: "rgba(151,187,205,0.2)",
@@ -59,77 +41,46 @@ function buildGraph(posts, tips, sort, callback) {
       data: dateLine
     }]
   };
-  var thisYear = new Date().getUTCFullYear();
-  if (sort === 'posts') {
-    if (posts != undefined && posts.length > 0) {
-      var i = 0;
+  if (posts != undefined && posts.length > 0) {
+    var i = 0;
+    var thisYear = new Date().getUTCFullYear();
+    if (sort === 'posts') {
       posts.forEach(function (post) {
-        var postYear = new Date(post.datetime).getUTCFullYear();
-        if (postYear === thisYear) {
-          var n = new Date(post.datetime).getUTCMonth();
-          dateLine[n] += 1;
-        }
-        if (i === posts.length - 1) {
-          callback(lineData);
-        }
-        i++;
+        var postDate = new Date(post.created_at);
+        if (postDate.getUTCFullYear() === thisYear) dateLine[postDate.getUTCMonth()] += 1;
+        if (++i === posts.length) callback(lineData);
       });
-    } else {
-      callback(lineData);
-    }
-  } else if (sort === 'tips') {
-    if (tips != undefined && tips.length > 0) {
-      var counter = 0;
-      tips.forEach(function (tip) {
-        var tipYear = new Date(tip.date).getUTCFullYear();
-        if (tipYear === thisYear) {
-          var n = new Date(tip.date).getUTCMonth();
-          dateLine[n] += 1;
-        }
-        if (counter === tips.length - 1) {
-          callback(lineData);
-        }
-        counter++;
+    } else if (sort === 'tips') {
+      posts.forEach(function (post) {
+        if (post.tipCount > 0) {
+          var j = 0;
+          post.tips.forEach(function (tip) {
+            var tipDate = new Date(tip.created_at);
+            if (tipDate.getUTCFullYear() === thisYear) dateLine[tipDate.getUTCMonth()] += 1;
+            if (++j === post.tipCount) i++;
+            if (i === posts.length) callback(lineData);
+          });
+        } else if (++i === posts.length) callback(lineData);
       });
-    } else {
-      callback(lineData);
-    }
-  } else if (sort === 'profit') {
-    if (tips != undefined && tips.length > 0) {
-      var i = 0;
-      tips.forEach(function (tip) {
-        var tipYear = new Date(tip.date).getUTCFullYear();
-        if (tipYear === thisYear) {
-          var n = new Date(tip.date).getUTCMonth();
-          dateLine[n] += 0.00013;
-        }
-        if (i === tips.length - 1) {
-          if (posts != undefined && posts.length > 0) {
-            var j = 0;
-            posts.forEach(function (post) {
-              var postYear = new Date(post.datetime).getUTCFullYear();
-              if (postYear === thisYear) {
-                var n2 = new Date(post.datetime).getUTCMonth();
-                dateLine[n2] -= 0.000001;
-              }
-              if (j === posts.length - 1) {
-                callback(lineData);
-              }
-              j++;
-            });
-          } else {
-            callback(lineData);
-          }
-        }
-        i++;
+    } else if (sort === 'profit') {
+      posts.forEach(function (post) {
+        if (post.tipCount > 0) {
+          var j = 0;
+          var postDate = new Date(post.created_at);
+          if (postDate.getUTCFullYear() === thisYear) dateLine[postDate.getUTCMonth()] -= 0.000001;
+          post.tips.forEach(function (tip) {
+            var tipDate = new Date(tip.created_at);
+            if (tipDate.getUTCFullYear() === thisYear) dateLine[tipDate.getUTCMonth()] += 0.00013;
+            if (++j === post.tipCount) i++;
+            if (i === posts.length) callback(lineData);
+          });
+        } else if (++i === posts.length) callback(lineData);
       });
-    } else {
-      callback(lineData);
     }
-  }
+  } else callback(lineData);
 }
 
-function postsStatistics(posts, tips, callback) {
+function postsStatistics(posts, callback) {
   var today = new Date();
   var sevenDays = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
   var thirtyDays = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30);
@@ -146,91 +97,53 @@ function postsStatistics(posts, tips, callback) {
   if (posts != undefined && posts.length > 0) {
     var i = 0;
     posts.forEach(function (post) {
-      var postDay = new Date(post.datetime);
+      var postDay = new Date(post.created_at);
       var postType = post.type;
-      if (postDay > sevenDays) {
-        sevenCount += 1;
-      }
-      if (postDay > thirtyDays) {
-        thirtyCount += 1;
-      }
-      if (postDay > ninetyDays) {
-        ninetyCount += 1;
-      }
-      if (postType.substring(0, 4) === 'text') {
-        textCount += 1;
-      } else if (postType.substring(0, 5) === 'image') {
-        imageCount += 1;
-      } else if (postType.substring(0, 5) === 'audio') {
-        audioCount += 1;
-      } else {
-        otherCount += 1;
-      }
-      if (i === posts.length - 1) {
-        callback(sevenCount, thirtyCount, ninetyCount, textCount, imageCount, audioCount, otherCount);
-      }
-      i++;
+      if (postDay > sevenDays) sevenCount += 1;
+      if (postDay > thirtyDays) thirtyCount += 1;
+      if (postDay > ninetyDays) ninetyCount += 1;
+      if (postType.substring(0, 4) === 'text') textCount += 1;else if (postType.substring(0, 5) === 'image') imageCount += 1;else if (postType.substring(0, 5) === 'audio') audioCount += 1;else otherCount += 1;
+      if (++i === posts.length) callback(sevenCount, thirtyCount, ninetyCount, textCount, imageCount, audioCount, otherCount);
     });
-  } else {
-    callback(sevenCount, thirtyCount, ninetyCount, textCount, imageCount, audioCount, otherCount);
-  }
+  } else callback(sevenCount, thirtyCount, ninetyCount, textCount, imageCount, audioCount, otherCount);
 }
 
-function tipsStatistics(posts, tips, callback) {
+function tipsStatistics(posts, numTips, callback) {
   var avgTips = 0;
   var maxTips = 0;
   var sevenCount = 0;
   var thirtyCount = 0;
   var ninetyCount = 0;
-  var allCount = tips.length;
+  var allCount = numTips;
+
+  if (posts.length > 0) avgTips = numTips / posts.length;
+
+  var today = new Date();
+  var sevenDays = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+  var thirtyDays = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30);
+  var ninetyDays = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 90);
 
   if (posts != undefined && posts.length > 0) {
     var i = 0;
     posts.forEach(function (post) {
-      if (post.tips > maxTips) {
-        maxTips = post.tips;
-      }
-      if (i === posts.length - 1) {
-        var avgTips = 0;
-        if (posts.length > 0) {
-          avgTips = tips.length / posts.length;
-        }
-        var today = new Date();
-        var sevenDays = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-        var thirtyDays = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30);
-        var ninetyDays = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 90);
-        if (tips != undefined && tips.length > 0) {
-          var j = 0;
-          tips.forEach(function (tip) {
-            var tipDay = new Date(tip.date);
-            if (tipDay > sevenDays) {
-              sevenCount += 1;
-            }
-            if (tipDay > thirtyDays) {
-              thirtyCount += 1;
-            }
-            if (tipDay > ninetyDays) {
-              ninetyCount += 1;
-            }
-            if (j === tips.length - 1) {
-              callback(avgTips, maxTips, sevenCount, thirtyCount, ninetyCount, allCount);
-            }
-            j++;
-          });
-        } else {
-          callback(avgTips, maxTips, sevenCount, thirtyCount, ninetyCount, allCount);
-        }
-      }
-      i++;
+      var j = 0;
+      if (post.tipCount > maxTips) maxTips = post.tipCount;
+      if (post.tipCount > 0) {
+        post.tips.forEach(function (tip) {
+          var tipDay = new Date(tip.created_at);
+          if (tipDay > sevenDays) sevenCount += 1;
+          if (tipDay > thirtyDays) thirtyCount += 1;
+          if (tipDay > ninetyDays) ninetyCount += 1;
+          if (++j === post.tipCount) i++;
+          if (i === posts.length) callback(avgTips, maxTips, sevenCount, thirtyCount, ninetyCount, allCount);
+        });
+      } else if (++i === posts.length) callback(avgTips, maxTips, sevenCount, thirtyCount, ninetyCount, allCount);
     });
-  } else {
-    callback(avgTips, maxTips, sevenCount, thirtyCount, ninetyCount, allCount);
-  }
+  } else callback(avgTips, maxTips, sevenCount, thirtyCount, ninetyCount, allCount);
 }
 
-function profitsStatistics(posts, tips, callback) {
+function profitsStatistics(posts, numTips, callback) {
   var numPosts = posts.length;
-  var numTips = tips.length;
   var revenues = (numTips * .00013).toFixed(5);
   var costs = (numPosts * .000001).toFixed(5);
   callback(revenues, costs);
@@ -240,60 +153,54 @@ function sortByTitle(posts, sort, callback) {
   if (posts !== undefined && posts.length > 0) {
     if (sort === "up") {
       callback(posts.sort(function (a, b) {
-        var titleA = a.title.toUpperCase();
-        var titleB = b.title.toUpperCase();
+        var titleA = a.name.toUpperCase();
+        var titleB = b.name.toUpperCase();
         return titleA < titleB ? -1 : titleA > titleB ? 1 : 0;
       }));
     } else if (sort === "down") {
       callback(posts.sort(function (a, b) {
-        var titleA = a.title.toUpperCase();
-        var titleB = b.title.toUpperCase();
+        var titleA = a.name.toUpperCase();
+        var titleB = b.name.toUpperCase();
         return titleA < titleB ? 1 : titleA > titleB ? -1 : 0;
       }));
     }
-  } else {
-    callback([]);
-  }
+  } else callback([]);
 }
 
 function sortByTips(posts, sort, callback) {
   if (posts !== undefined && posts.length > 0) {
     if (sort === "up") {
       callback(posts.sort(function (a, b) {
-        var tipsA = a.tips;
-        var tipsB = b.tips;
+        var tipsA = a.tipCount;
+        var tipsB = b.tipCount;
         return tipsA < tipsB ? 1 : tipsA > tipsB ? -1 : 0;
       }));
     } else if (sort === "down") {
       callback(posts.sort(function (a, b) {
-        var tipsA = a.tips;
-        var tipsB = b.tips;
+        var tipsA = a.tipCount;
+        var tipsB = b.tipCount;
         return tipsA < tipsB ? -1 : tipsA > tipsB ? 1 : 0;
       }));
     }
-  } else {
-    callback([]);
-  }
+  } else callback([]);
 }
 
 function sortByDate(posts, sort, callback) {
   if (posts !== undefined && posts.length > 0) {
     if (sort === "up") {
       callback(posts.sort(function (a, b) {
-        var dateA = new Date(a.datetime).toLocaleString();
-        var dateB = new Date(b.datetime).toLocaleString();
+        var dateA = new Date(a.created_at).toLocaleString();
+        var dateB = new Date(b.created_at).toLocaleString();
         return dateA < dateB ? 1 : dateA > dateB ? -1 : 0;
       }));
     } else if (sort === "down") {
       callback(posts.sort(function (a, b) {
-        var dateA = new Date(a.datetime).toLocaleString();
-        var dateB = new Date(b.datetime).toLocaleString();
+        var dateA = new Date(a.created_at).toLocaleString();
+        var dateB = new Date(b.created_at).toLocaleString();
         return dateA < dateB ? -1 : dateA > dateB ? 1 : 0;
       }));
     }
-  } else {
-    callback([]);
-  }
+  } else callback([]);
 }
 
 function sortBySHA1(posts, sort, callback) {
@@ -311,17 +218,14 @@ function sortBySHA1(posts, sort, callback) {
         return sha1A < sha1B ? 1 : sha1A > sha1B ? -1 : 0;
       }));
     }
-  } else {
-    callback([]);
-  }
+  } else callback([]);
 }
 
-function buildTable(sortedPosts, tips, base, callback) {
+function buildTable(posts, callback) {
   var renderPosts = [];
-  if (sortedPosts != undefined && sortedPosts.length > 0) {
+  if (posts != undefined && posts.length > 0) {
     var i = 0;
-    sortedPosts.forEach(function (post) {
-      var src = "https://bitstore-test.blockai.com/" + post.owner + "/sha1/" + post.sha1;
+    posts.forEach(function (post) {
       renderPosts.push(React.createElement(
         'tr',
         { key: i },
@@ -331,57 +235,53 @@ function buildTable(sortedPosts, tips, base, callback) {
           React.createElement(
             'center',
             null,
-            React.createElement(BitstoreContent, { tips: tips, post: post, src: src, href: src, preview: true })
+            React.createElement(BitstoreContent, { tips: post.tips, post: post, src: post.uri, href: post.uri, preview: true })
           )
         ),
         React.createElement(
           'td',
           null,
-          React.createElement(BitstoreContent, { tips: tips, post: post, src: src, href: src, text: true })
+          React.createElement(BitstoreContent, { tips: post.tips, post: post, src: post.uri, href: post.uri, text: true })
         ),
         React.createElement(
           'td',
           null,
-          post.tips
+          React.createElement(
+            'center',
+            null,
+            post.tipCount
+          )
         ),
         React.createElement(
           'td',
           null,
-          new Date(post.datetime).toLocaleString()
+          new Date(post.created_at).toLocaleString()
         ),
         React.createElement(
           'td',
           null,
           React.createElement(
             'a',
-            { href: base + '/permalink?sha1=' + post.sha1 },
+            { href: post.uri },
             post.sha1,
             ' '
           )
         )
       ));
-      if (i === sortedPosts.length - 1) {
-        callback(renderPosts);
-      }
-      i++;
+      if (++i === posts.length) callback(renderPosts);
     });
-  } else {
-    callback(renderPosts);
-  }
+  } else callback(renderPosts);
 }
 
-function buildVisual(posts, tips, callback) {
+function buildVisual(posts, callback) {
   var visual = [];
   if (posts != undefined && posts.length > 0) {
     for (var i = 0; i < posts.length; i++) {
       var post = posts[i];
-      var src = "https://bitstore-test.blockai.com/" + post.owner + "/sha1/" + post.sha1;
-      visual.push(React.createElement(BitstoreContent, { key: i, tips: tips, post: post, src: src, href: src, visual: true }));
+      visual.push(React.createElement(BitstoreContent, { key: i, tips: post.tips, post: post, src: post.uri, href: post.uri, visual: true }));
     }
     callback(visual);
-  } else {
-    callback(visual);
-  }
+  } else callback(visual);
 }
 
 var Assets = React.createClass({
@@ -392,29 +292,19 @@ var Assets = React.createClass({
   },
 
   componentDidMount: function componentDidMount() {
-    if (this.props.address === undefined) {
-      console.log('error: No address parameter is specified.');
-    }
-    var address = this.props.address;
-    var BASE = 'http://coinvote-testnet.herokuapp.com';
-    if (this.props.network === undefined) console.log('No network parameter is specified, defaulting to testnet.');
-    if (this.props.network === 'mainnet') BASE = 'http://coinvote.herokuapp.com';
+    if (this.props.address === undefined) console.log('error: No address parameter is specified.');
+    var openpublishState = require('openpublish-state')({
+      network: this.props.network
+    });
     var that = this;
-    xhr({
-      url: BASE + '/getPosts/user?address=' + address,
-      headers: {
-        "Content-Type": "application/json"
-      },
-      method: 'GET'
-    }, function (err, resp, body) {
-      if (err) {
-        console.log("error: " + err);
-      }
-      if (resp.statusCode === 200) {
-        console.log("Received response from server");
-        initialize(JSON.parse(body).posts, JSON.parse(body).tips, function (posts, tips) {
-          that.renderPosts(posts, tips, BASE, function (sortedPosts) {
-            that.renderVisual(posts, tips, function (visual) {
+    openpublishState.findDocsByUser({
+      address: this.props.address,
+      includeTips: true
+    }, function (err, opendocs) {
+      if (err) console.log("error: " + err);else {
+        initialize(opendocs, function (numTips) {
+          that.renderPosts(opendocs, function (sortedPosts) {
+            that.renderVisual(opendocs, function (visual) {
               that.setState({
                 title: React.createElement(
                   'th',
@@ -442,9 +332,8 @@ var Assets = React.createClass({
                 ),
                 visual: visual,
                 posts: sortedPosts,
-                rawPosts: posts,
-                rawTips: tips,
-                base: BASE
+                rawPosts: opendocs,
+                numTips: numTips
               });
               that.renderStatistics('tips');
             });
@@ -454,19 +343,30 @@ var Assets = React.createClass({
     });
   },
 
+  renderPosts: function renderPosts(posts, callback) {
+    sortByDate(posts, 'up', function (sortedPosts) {
+      buildTable(sortedPosts, function (renderPosts) {
+        callback(renderPosts);
+      });
+    });
+  },
+
+  renderVisual: function renderVisual(posts, callback) {
+    buildVisual(posts, function (visual) {
+      callback(visual);
+    });
+  },
+
   renderStatistics: function renderStatistics(sort) {
-    var numPosts = this.state.rawPosts.length;
-    var numTips = this.state.rawTips.length;
-    var numProfits = 0.0;
-    if (numPosts > 0 || numTips > 0) {
-      numProfits = (numTips * .00013 - (numPosts * .000001 + .0001)).toFixed(5);
-    }
     var posts = this.state.rawPosts;
-    var tips = this.state.rawTips;
+    var numPosts = posts.length;
+    var numTips = this.state.numTips;
+    var numProfits = 0.0;
+    if (numPosts > 0 || numTips > 0) numProfits = (numTips * .00013 - (numPosts * .000001 + .0001)).toFixed(5);
     var that = this;
     if (sort === 'posts') {
-      buildGraph(posts, null, 'posts', function (lineData) {
-        postsStatistics(posts, tips, function (sevenCount, thirtyCount, ninetyCount, textCount, imageCount, audioCount, otherCount) {
+      buildGraph(posts, 'posts', function (lineData) {
+        postsStatistics(posts, function (sevenCount, thirtyCount, ninetyCount, textCount, imageCount, audioCount, otherCount) {
           var statistics = React.createElement(
             'div',
             null,
@@ -661,8 +561,10 @@ var Assets = React.createClass({
         });
       });
     } else if (sort === 'tips') {
-      buildGraph(null, tips, 'tips', function (lineData) {
-        tipsStatistics(posts, tips, function (avgTips, maxTips, sevenCount, thirtyCount, ninetyCount, allCount) {
+      buildGraph(posts, 'tips', function (lineData) {
+        console.log("reached buildgraph callback");
+        tipsStatistics(posts, that.state.numTips, function (avgTips, maxTips, sevenCount, thirtyCount, ninetyCount, allCount) {
+          console.log("reached tips stats cb");
           var statistics = React.createElement(
             'div',
             null,
@@ -841,8 +743,8 @@ var Assets = React.createClass({
         });
       });
     } else if (sort === 'profit') {
-      buildGraph(posts, tips, 'profit', function (lineData) {
-        profitsStatistics(posts, tips, function (revenues, costs) {
+      buildGraph(posts, 'profit', function (lineData) {
+        profitsStatistics(posts, that.state.numTips, function (revenues, costs) {
           var statistics = React.createElement(
             'div',
             null,
@@ -955,22 +857,12 @@ var Assets = React.createClass({
     }
   },
 
-  renderPosts: function renderPosts(posts, tips, base, callback) {
-    sortByDate(posts, 'up', function (sortedPosts) {
-      buildTable(sortedPosts, tips, base, function (renderPosts) {
-        callback(renderPosts);
-      });
-    });
-  },
-
   sortPosts: function sortPosts(sort) {
     var posts = this.state.rawPosts;
-    var tips = this.state.rawTips;
-    var base = this.state.base;
     var that = this;
     if (sort === 'title-up') {
       sortByTitle(posts, 'up', function (sortedPosts) {
-        buildTable(sortedPosts, tips, base, function (renderPosts) {
+        buildTable(sortedPosts, function (renderPosts) {
           that.setState({
             posts: renderPosts,
             title: React.createElement(
@@ -1002,7 +894,7 @@ var Assets = React.createClass({
       });
     } else if (sort === 'title-down') {
       sortByTitle(posts, 'down', function (sortedPosts) {
-        buildTable(sortedPosts, tips, base, function (renderPosts) {
+        buildTable(sortedPosts, function (renderPosts) {
           that.setState({
             posts: renderPosts,
             title: React.createElement(
@@ -1034,7 +926,7 @@ var Assets = React.createClass({
       });
     } else if (sort === 'tips-up') {
       sortByTips(posts, 'up', function (sortedPosts) {
-        buildTable(sortedPosts, tips, base, function (renderPosts) {
+        buildTable(sortedPosts, function (renderPosts) {
           that.setState({
             posts: renderPosts,
             title: React.createElement(
@@ -1066,7 +958,7 @@ var Assets = React.createClass({
       });
     } else if (sort === 'tips-down') {
       sortByTips(posts, 'down', function (sortedPosts) {
-        buildTable(sortedPosts, tips, base, function (renderPosts) {
+        buildTable(sortedPosts, function (renderPosts) {
           that.setState({
             posts: renderPosts,
             title: React.createElement(
@@ -1098,7 +990,7 @@ var Assets = React.createClass({
       });
     } else if (sort === 'date-up') {
       sortByDate(posts, 'up', function (sortedPosts) {
-        buildTable(sortedPosts, tips, base, function (renderPosts) {
+        buildTable(sortedPosts, function (renderPosts) {
           that.setState({
             posts: renderPosts,
             title: React.createElement(
@@ -1130,7 +1022,7 @@ var Assets = React.createClass({
       });
     } else if (sort === 'date-down') {
       sortByDate(posts, 'down', function (sortedPosts) {
-        buildTable(sortedPosts, tips, base, function (renderPosts) {
+        buildTable(sortedPosts, function (renderPosts) {
           that.setState({
             posts: renderPosts,
             title: React.createElement(
@@ -1162,7 +1054,7 @@ var Assets = React.createClass({
       });
     } else if (sort === 'sha1-up') {
       sortBySHA1(posts, 'up', function (sortedPosts) {
-        buildTable(sortedPosts, tips, base, function (renderPosts) {
+        buildTable(sortedPosts, function (renderPosts) {
           that.setState({
             posts: renderPosts,
             title: React.createElement(
@@ -1194,7 +1086,7 @@ var Assets = React.createClass({
       });
     } else if (sort === 'sha1-down') {
       sortBySHA1(posts, 'down', function (sortedPosts) {
-        buildTable(sortedPosts, tips, base, function (renderPosts) {
+        buildTable(sortedPosts, function (renderPosts) {
           that.setState({
             posts: renderPosts,
             title: React.createElement(
@@ -1225,12 +1117,6 @@ var Assets = React.createClass({
         });
       });
     }
-  },
-
-  renderVisual: function renderVisual(posts, tips, callback) {
-    buildVisual(posts, tips, function (visual) {
-      callback(visual);
-    });
   },
 
   render: function render() {

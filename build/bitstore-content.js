@@ -42,14 +42,13 @@ var BitstoreContent = React.createClass({
 
     if (tips.length > 0) {
       var thisYear = new Date().getUTCFullYear();
-      var title = post.title;
       var that = this;
       var i = 0;
       tips.forEach(function (tip) {
-        if (tip.title === title) {
-          var tipYear = new Date(tip.date).getUTCFullYear();
+        if (tip.sha1 === post.sha1) {
+          var tipYear = new Date(tip.created_at).getUTCFullYear();
           if (tipYear === thisYear) {
-            var n = new Date(tip.date).getUTCMonth();
+            var n = new Date(tip.created_at).getUTCMonth();
             dateLine[n] += 1;
           }
         }
@@ -114,7 +113,7 @@ var BitstoreContent = React.createClass({
           Modal.Title,
           null,
           modalImage,
-          "  " + post.title + "\'s Statistics"
+          "  " + post.name + "\'s Statistics"
         )
       ),
       React.createElement(
@@ -133,7 +132,7 @@ var BitstoreContent = React.createClass({
           React.createElement(
             'b',
             null,
-            new Date(post.datetime).toLocaleString()
+            new Date(post.created_at).toLocaleString()
           )
         ),
         React.createElement(
@@ -143,7 +142,7 @@ var BitstoreContent = React.createClass({
           React.createElement(
             'b',
             null,
-            post.tips
+            post.tipCount
           )
         )
       ),
@@ -199,14 +198,13 @@ var BitstoreContent = React.createClass({
         );
       }
     } else if (this.props.text) {
-      var title = post.title;
       return React.createElement(
         'div',
         null,
         React.createElement(
           'a',
           { onClick: this.open },
-          title
+          post.name
         ),
         modal
       );

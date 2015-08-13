@@ -38,14 +38,13 @@ var BitstoreContent = React.createClass({
 
     if (tips.length > 0) {
       var thisYear = new Date().getUTCFullYear();
-      var title = post.title;
       var that = this;
       var i = 0;
       tips.forEach(function (tip) {
-        if (tip.title === title) {
-          var tipYear = new Date(tip.date).getUTCFullYear();
+        if (tip.sha1 === post.sha1) {
+          var tipYear = new Date(tip.created_at).getUTCFullYear();
           if (tipYear === thisYear) {
-            var n = new Date(tip.date).getUTCMonth();
+            var n = new Date(tip.created_at).getUTCMonth();
             dateLine[n] += 1;
           }
         }
@@ -108,7 +107,7 @@ var BitstoreContent = React.createClass({
     var modal = (
       <Modal show={this.state.showModal} onHide={this.close}>
         <Modal.Header closeButton>
-          <Modal.Title>{modalImage}{"  " + post.title + "\'s Statistics"}</Modal.Title>
+          <Modal.Title>{modalImage}{"  " + post.name + "\'s Statistics"}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div>
@@ -117,8 +116,8 @@ var BitstoreContent = React.createClass({
 
           <hr />
 
-          <p>Publish Date: <b>{new Date(post.datetime).toLocaleString()}</b></p>
-          <p>Tips: <b>{post.tips}</b></p>
+          <p>Publish Date: <b>{new Date(post.created_at).toLocaleString()}</b></p>
+          <p>Tips: <b>{post.tipCount}</b></p>
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={this.close}>Close</Button>
@@ -173,10 +172,9 @@ var BitstoreContent = React.createClass({
       }       
     }
     else if (this.props.text) {
-      var title = post.title;
       return (
         <div>
-          <a onClick={this.open}>{title}</a>
+          <a onClick={this.open}>{post.name}</a>
           {modal}
         </div>
       );
