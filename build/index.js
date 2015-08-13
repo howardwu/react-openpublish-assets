@@ -1,7 +1,6 @@
 'use strict';
 
 var React = require('react');
-
 var LineChart = require("react-chartjs").Line;
 
 var Row = require('react-bootstrap/lib/Row');
@@ -562,9 +561,7 @@ var Assets = React.createClass({
       });
     } else if (sort === 'tips') {
       buildGraph(posts, 'tips', function (lineData) {
-        console.log("reached buildgraph callback");
         tipsStatistics(posts, that.state.numTips, function (avgTips, maxTips, sevenCount, thirtyCount, ninetyCount, allCount) {
-          console.log("reached tips stats cb");
           var statistics = React.createElement(
             'div',
             null,
